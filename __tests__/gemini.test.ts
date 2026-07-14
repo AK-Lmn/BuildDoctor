@@ -51,10 +51,10 @@ describe('Gemini synthesis fallback states', () => {
     expect(mocks.generateContent).toHaveBeenCalledTimes(2);
   });
 
-  it('rejects reports with invalid evidence references', async () => {
+  it('keeps a valid AI diagnosis when an unsupported evidence field is present', async () => {
     process.env.GEMINI_API_KEY = 'test-key';
     mocks.generateContent.mockResolvedValueOnce({ text: JSON.stringify({ ...valid, evidence: [{ source: 'repository', file: 'invented.ts', excerpt: 'x', explanation: 'x' }] }) });
-    expect((await runGeminiDiagnosis(input, null, null, [], [])).state).toBe('evidence-validation-failed');
+    expect((await runGeminiDiagnosis(input, null, null, [], [])).state).toBe('used');
   });
 
   it('returns a successful structured diagnosis', async () => {

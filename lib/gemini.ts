@@ -19,8 +19,7 @@ import type { GitHubFile } from './github/client';
 
 // ── Schema sent to Gemini ─────────────────────────────────────────────────────
 
-const GeminiDiagnosisSchema = z.object({
-  status: z.enum(['diagnosed', 'partial', 'insufficient-evidence']),
+export const AiDiagnosisSchema = z.object({
   primaryDiagnosis: z.object({
     title: z.string(),
     category: DiagnosticCategory,
@@ -29,20 +28,11 @@ const GeminiDiagnosisSchema = z.object({
     summary: z.string(),
     whyItFails: z.string(),
   }),
-  evidence: z.array(z.object({
-    id: z.string().optional(),
-    source: z.enum(['build-log', 'repository', 'configuration', 'dependency']),
-    file: z.string().optional(),
-    lineStart: z.number().optional(),
-    lineEnd: z.number().optional(),
-    excerpt: z.string(),
-    explanation: z.string(),
-  })),
   contributingFactors: z.array(z.object({
     title: z.string(),
     description: z.string(),
     severity: Severity,
-  })),
+  })).optional(),
   repairPlan: z.array(z.object({
     order: z.number(),
     title: z.string(),
@@ -51,22 +41,37 @@ const GeminiDiagnosisSchema = z.object({
     files: z.array(z.string()).optional(),
     commands: z.array(z.string()).optional(),
     expectedOutcome: z.string(),
-  })),
+  })).optional(),
   suggestedPatches: z.array(z.object({
     file: z.string(),
     rationale: z.string(),
     before: z.string().optional(),
     after: z.string(),
     confidence: Confidence,
-  })),
+  })).optional(),
   verificationCommands: z.array(z.object({
     command: z.string(),
     description: z.string(),
     expectedOutcome: z.string(),
-  })),
-  unresolvedQuestions: z.array(z.string()),
-  limitations: z.array(z.string()),
+  })).optional(),
+  unresolvedQuestions: z.array(z.string()).optional(),
+  limitations: z.array(z.string()).optional(),
 });
+
+// JSON Schema uses only the responseJsonSchema subset supported by @google/genai.
+export const AiDiagnosisJsonSchema = {
+  type: 'object', additionalProperties: false,
+  properties: {
+    primaryDiagnosis: { type: 'object', additionalProperties: false, required: ['title', 'category', 'severity', 'confidence', 'summary', 'whyItFails'], properties: {
+      title: { type: 'string' }, category: { type: 'string', enum: DiagnosticCategory.options }, severity: { type: 'string', enum: Severity.options }, confidence: { type: 'string', enum: Confidence.options }, summary: { type: 'string' }, whyItFails: { type: 'string' },
+    }},
+    contributingFactors: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['title', 'description', 'severity'], properties: { title: { type: 'string' }, description: { type: 'string' }, severity: { type: 'string', enum: Severity.options } } } },
+    repairPlan: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['order', 'title', 'description', 'risk', 'expectedOutcome'], properties: { order: { type: 'number' }, title: { type: 'string' }, description: { type: 'string' }, risk: { type: 'string', enum: ['low', 'medium', 'high'] }, files: { type: 'array', items: { type: 'string' } }, commands: { type: 'array', items: { type: 'string' } }, expectedOutcome: { type: 'string' } } } },
+    suggestedPatches: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['file', 'rationale', 'after', 'confidence'], properties: { file: { type: 'string' }, rationale: { type: 'string' }, before: { type: 'string' }, after: { type: 'string' }, confidence: { type: 'string', enum: Confidence.options } } } },
+    verificationCommands: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['command', 'description', 'expectedOutcome'], properties: { command: { type: 'string' }, description: { type: 'string' }, expectedOutcome: { type: 'string' } } } },
+    unresolvedQuestions: { type: 'array', items: { type: 'string' } }, limitations: { type: 'array', items: { type: 'string' } },
+  }, required: ['primaryDiagnosis'],
+} as const;
 
 // ── Prompt builder ────────────────────────────────────────────────────────────
 
@@ -135,33 +140,27 @@ Respond with a JSON object matching the DiagnosisReport schema exactly.`;
 
 // ── Evidence validation ───────────────────────────────────────────────────────
 
-function validateEvidence(
-  report: z.infer<typeof GeminiDiagnosisSchema>,
-  log: NormalizedLog | null,
-  files: GitHubFile[]
-): { report: z.infer<typeof GeminiDiagnosisSchema>; removed: boolean } {
-  const validatedFiles = new Set(files.map(f => f.path));
-  const logLineCount = log?.normalizedLineCount ?? 0;
+function normalizeAiResponse(value: unknown): unknown {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return value;
+  const report = { ...(value as Record<string, unknown>) };
+  for (const field of ['contributingFactors', 'repairPlan', 'suggestedPatches', 'verificationCommands', 'unresolvedQuestions', 'limitations']) {
+    if (report[field] === undefined) report[field] = [];
+  }
+  if (Array.isArray(report.repairPlan)) {
+    report.repairPlan = report.repairPlan.map(step => {
+      if (!step || typeof step !== 'object') return step;
+      const value = { ...(step as Record<string, unknown>) };
+      if (typeof value.order === 'string' && /^\d+$/.test(value.order)) value.order = Number(value.order);
+      return value;
+    });
+  }
+  return report;
+}
 
-  const validEvidence = report.evidence.filter(ev => {
-    // Validate file references
-    if (ev.source === 'repository' || ev.source === 'configuration') {
-      if (ev.file && !validatedFiles.has(ev.file)) {
-        return false; // Remove evidence citing files we didn't fetch
-      }
-    }
-
-    // Validate log line references
-    if (ev.source === 'build-log') {
-      if (ev.lineStart !== undefined && ev.lineStart > logLineCount) {
-        return false; // Invalid log line reference
-      }
-    }
-
-    return true;
-  });
-
-  return { report: { ...report, evidence: validEvidence.slice(0, LIMITS.EVIDENCE_MAX) }, removed: validEvidence.length !== report.evidence.length };
+function removeInvalidPatches(report: z.infer<typeof AiDiagnosisSchema>, files: GitHubFile[]) {
+  const paths = new Set(files.map(file => file.path));
+  const suggestedPatches = (report.suggestedPatches ?? []).filter(patch => paths.has(patch.file));
+  return { ...report, suggestedPatches, removed: suggestedPatches.length !== (report.suggestedPatches ?? []).length };
 }
 
 // ── Main adapter ──────────────────────────────────────────────────────────────
@@ -210,13 +209,14 @@ export async function runGeminiDiagnosis(
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
+        responseJsonSchema: AiDiagnosisJsonSchema,
       },
     }), combinedSignal);
 
     const text = response.text;
     if (!text) throw new Error('Empty response from AI');
 
-    rawResponse = JSON.parse(text);
+    rawResponse = normalizeAiResponse(JSON.parse(text));
     void combinedSignal; // The installed SDK does not expose an AbortSignal request option.
   } catch (err) {
     if ((err as Error).name === 'AbortError') {
@@ -227,15 +227,16 @@ export async function runGeminiDiagnosis(
   }
 
   // Validate with Zod
-  let parsed = GeminiDiagnosisSchema.safeParse(rawResponse);
+  let parsed = AiDiagnosisSchema.safeParse(rawResponse);
+  if (!parsed.success) logSchemaIssues(parsed.error, 'initial');
 
   if (!parsed.success) {
     // One repair attempt — ask Gemini to fix the structure
     repairAttempted = true;
     try {
-      const repairPrompt = `The following JSON did not match the expected schema. Fix it to match the DiagnosisReport structure:
+      const repairPrompt = `Correct this JSON object to match the provided AI diagnosis schema. Return only the corrected object.
 
-Schema errors: ${JSON.stringify(parsed.error.issues.slice(0, 5))}
+Schema issues: ${JSON.stringify(safeIssueDetails(parsed.error))}
 
 Original JSON (truncated):
 ${JSON.stringify(rawResponse).slice(0, 2000)}
@@ -247,13 +248,15 @@ Return only valid JSON.`;
         contents: repairPrompt,
         config: {
           responseMimeType: 'application/json',
+          responseJsonSchema: AiDiagnosisJsonSchema,
         },
       }), signal ? AbortSignal.any([signal, AbortSignal.timeout(LIMITS.AI_TIMEOUT_MS)]) : AbortSignal.timeout(LIMITS.AI_TIMEOUT_MS));
 
       const repairText = repairResp.text;
       if (repairText) {
-        rawResponse = JSON.parse(repairText);
-        parsed = GeminiDiagnosisSchema.safeParse(rawResponse);
+        rawResponse = normalizeAiResponse(JSON.parse(repairText));
+        parsed = AiDiagnosisSchema.safeParse(rawResponse);
+        if (!parsed.success) logSchemaIssues(parsed.error, 'repair');
       }
     } catch {
       // Repair failed — fall through to deterministic fallback
@@ -263,26 +266,23 @@ Return only valid JSON.`;
   if (!parsed.success) return deterministicFallback('invalid-structured-output', deterministicFindings, { repairAttempted, parsingFailed });
 
   // Post-process: validate evidence references
-  const validated = validateEvidence(parsed.data, log, files);
-  if (validated.removed) return deterministicFallback('evidence-validation-failed', deterministicFindings, { repairAttempted, evidenceValidationRemoved: true });
+  const validated = removeInvalidPatches(parsed.data, files);
 
   // Map to DiagnosisReport, adding IDs and usedAI
   let report: z.infer<typeof DiagnosisReport>;
   try {
     report = DiagnosisReport.parse({
-      ...validated.report,
-      evidence: validated.report.evidence.map((ev, i) => ({
-        ...ev,
-        id: ev.id ?? `ai-ev-${i}`,
-      })),
+      status: deterministicFindings.length ? 'diagnosed' : 'partial',
+      ...validated,
+      evidence: deterministicFindings.flatMap(finding => finding.evidence).slice(0, LIMITS.EVIDENCE_MAX),
       usedAI: true,
-      severityCounts: computeSeverityCounts(validated.report),
+      severityCounts: computeSeverityCounts(validated),
     });
   } catch {
     return deterministicFallback('invalid-structured-output', deterministicFindings, { repairAttempted, parsingFailed: true });
   }
 
-  return { report, usedAI: true, state: 'used', repairAttempted, parsingFailed: false, evidenceValidationRemoved: false };
+  return { report, usedAI: true, state: 'used', repairAttempted, parsingFailed: false, evidenceValidationRemoved: validated.removed };
 }
 
 function deterministicFallback(
@@ -302,6 +302,20 @@ function getHttpStatus(error: unknown): number | undefined {
   return typeof status === 'number' ? status : undefined;
 }
 
+function safeIssueDetails(error: z.ZodError): Array<Record<string, unknown>> {
+  return error.issues.slice(0, 8).map(issue => ({
+    path: issue.path.map(String).join('.'), code: issue.code,
+    expected: 'expected' in issue ? issue.expected : undefined,
+    received: 'received' in issue ? issue.received : undefined,
+  }));
+}
+
+function logSchemaIssues(error: z.ZodError, phase: 'initial' | 'repair'): void {
+  for (const issue of safeIssueDetails(error)) {
+    console.warn('[BuildDoctor] AI schema validation failure', { failureCategory: 'invalid-structured-output', phase, ...issue });
+  }
+}
+
 function awaitWithSignal<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
   if (signal.aborted) return Promise.reject(new DOMException('Aborted', 'AbortError'));
   return Promise.race([
@@ -310,10 +324,10 @@ function awaitWithSignal<T>(promise: Promise<T>, signal: AbortSignal): Promise<T
   ]);
 }
 
-function computeSeverityCounts(report: z.infer<typeof GeminiDiagnosisSchema>) {
+function computeSeverityCounts(report: z.infer<typeof AiDiagnosisSchema>) {
   const counts = { critical: 0, high: 0, medium: 0, low: 0 };
   counts[report.primaryDiagnosis.severity]++;
-  for (const factor of report.contributingFactors) {
+  for (const factor of report.contributingFactors ?? []) {
     counts[factor.severity]++;
   }
   return counts;
