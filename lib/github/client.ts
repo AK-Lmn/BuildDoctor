@@ -6,6 +6,7 @@
 import { LIMITS } from '../config';
 import { redactFileContent } from '../redact';
 import type { GithubRateLimit } from '../types';
+import { isNonProjectPath } from '../project-files';
 
 const GITHUB_API_BASE = 'https://api.github.com';
 
@@ -153,6 +154,10 @@ export function shouldFetchFile(item: GitHubTreeItem, referencedFiles: Set<strin
   // Block binary files
   if (BINARY_EXTENSIONS.has(ext)) return false;
 
+  // Fixtures and test-only content cannot describe the primary project unless the log names it.
+  const isReferenced = referencedFiles.has(path) || referencedFiles.has(filename);
+  if (isNonProjectPath(path) && !isReferenced) return false;
+
   // Check file size
   if (item.size && item.size > LIMITS.INDIVIDUAL_FILE_MAX_BYTES) return false;
 
@@ -163,7 +168,7 @@ export function shouldFetchFile(item: GitHubTreeItem, referencedFiles: Set<strin
   if (path.startsWith('.github/workflows/') && (ext === '.yml' || ext === '.yaml')) return true;
 
   // Source files referenced by errors
-  if (referencedFiles.has(path) || referencedFiles.has(filename)) return true;
+  if (isReferenced) return true;
 
   // Top-level source dirs with allowed extensions
   const topDir = parts[0];
@@ -177,6 +182,23 @@ export function shouldFetchFile(item: GitHubTreeItem, referencedFiles: Set<strin
   }
 
   return false;
+}
+
+export function rankCandidateFiles(items: GitHubTreeItem[], referencedFiles: Set<string>): GitHubTreeItem[] {
+  // Tree entries do not include content, so workspace packages are ranked after root configuration.
+  // Their allowlisted package.json entries remain ahead of ordinary source files.
+  return [...items].sort((a, b) => score(b) - score(a) || a.path.localeCompare(b.path));
+
+  function score(item: GitHubTreeItem): number {
+    const filename = item.path.split('/').pop()!;
+    const referenced = referencedFiles.has(item.path) || referencedFiles.has(filename);
+    if (referenced) return 500;
+    if (!item.path.includes('/') && ALLOWLISTED_FILES.has(filename)) return 400;
+    if (!item.path.includes('/') && (item.path.startsWith('.github/') || filename.endsWith('.config.js') || filename.endsWith('.config.ts'))) return 400;
+    if (filename === 'package.json' && !isNonProjectPath(item.path)) return 300;
+    if ((item.path.startsWith('src/') || item.path.startsWith('app/') || item.path.startsWith('pages/')) && !isNonProjectPath(item.path)) return 200;
+    return isNonProjectPath(item.path) ? 0 : 100;
+  }
 }
 
 // ── Main fetch function ───────────────────────────────────────────────────────
@@ -250,13 +272,7 @@ export async function fetchRepository(
   let filesAttempted = 0;
 
   // Sort: config files first, then source
-  candidates.sort((a, b) => {
-    const aIsConfig = ALLOWLISTED_FILES.has(a.path.split('/').pop()!);
-    const bIsConfig = ALLOWLISTED_FILES.has(b.path.split('/').pop()!);
-    if (aIsConfig && !bIsConfig) return -1;
-    if (!aIsConfig && bIsConfig) return 1;
-    return (a.size ?? 0) - (b.size ?? 0);
-  });
+  candidates.splice(0, candidates.length, ...rankCandidateFiles(candidates, referencedFiles));
 
   const toFetch = candidates.slice(0, LIMITS.FETCHED_FILES_MAX);
 

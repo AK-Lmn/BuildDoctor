@@ -53,6 +53,15 @@ describe('runDeterministicDiagnostics', () => {
     expect(findings.some(f => f.category === 'BUILD_SCRIPT_MISSING')).toBe(false);
   });
 
+  it('does not flag an empty fixture package as a missing root build script', () => {
+    const files = [
+      makeFile('package.json', JSON.stringify({ scripts: { build: 'next build' } })),
+      makeFile('test/fixtures/empty/package.json', JSON.stringify({ scripts: {} })),
+    ];
+    const findings = runDeterministicDiagnostics(null, files, {});
+    expect(findings.some(f => f.category === 'BUILD_SCRIPT_MISSING')).toBe(false);
+  });
+
   it('detects malformed package.json', () => {
     const files = [makeFile('package.json', '{ invalid json }')];
     const findings = runDeterministicDiagnostics(null, files, {});

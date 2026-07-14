@@ -76,6 +76,7 @@ export default function ReportView({ input, result, onNewDiagnosis, onAnalyzeAga
   const [filter, setFilter] = useState<ReportFilter>('all');
   const [copied, setCopied] = useState(false);
   const [selectedEvidenceId, setSelectedEvidenceId] = useState<string | null>(null);
+  const [showAllInspectedFiles, setShowAllInspectedFiles] = useState(false);
 
   const { report, projectSnapshot, deterministicFindings, filesInspected, githubRateLimit, aiUsed, processingMs } = result;
   const pd = report.primaryDiagnosis;
@@ -593,7 +594,7 @@ export default function ReportView({ input, result, onNewDiagnosis, onAnalyzeAga
         <Card style={{ marginBottom: '16px' }}>
           <SectionTitle>Files Inspected ({filesInspected.length})</SectionTitle>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-            {filesInspected.map(f => (
+            {(showAllInspectedFiles ? filesInspected : filesInspected.slice(0, 10)).map(f => (
               <code key={f} style={{
                 fontSize: '11px',
                 color: '#22d3ee',
@@ -608,6 +609,16 @@ export default function ReportView({ input, result, onNewDiagnosis, onAnalyzeAga
               </code>
             ))}
           </div>
+          {filesInspected.length > 10 && (
+            <button
+              type="button"
+              aria-expanded={showAllInspectedFiles}
+              onClick={() => setShowAllInspectedFiles(value => !value)}
+              style={{ marginTop: '12px', background: 'transparent', border: '1px solid #2a2d35', borderRadius: '4px', color: '#22d3ee', cursor: 'pointer', padding: '6px 9px', fontSize: '12px' }}
+            >
+              {showAllInspectedFiles ? 'Show fewer inspected files' : 'Show all inspected files'}
+            </button>
+          )}
         </Card>
       )}
 

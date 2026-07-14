@@ -14,6 +14,7 @@ import type {
   Severity,
 } from './types';
 import { LIMITS } from './config';
+import { rootFile } from './project-files';
 
 let _findingCounter = 0;
 function nextId(): string {
@@ -34,7 +35,7 @@ function parseJsonSafe(content: string): Record<string, unknown> | null {
 
 function findFile(files: GitHubFile[], ...names: string[]): GitHubFile | undefined {
   for (const name of names) {
-    const found = files.find(f => f.path.endsWith('/' + name) || f.path === name);
+    const found = rootFile(files, name);
     if (found) return found;
   }
   return undefined;
@@ -403,7 +404,9 @@ export function runDeterministicDiagnostics(
 
   // Log-based checks
   if (log && log.matchedSignals.length > 0) {
-    const logFindings = findingsFromSignals(log.matchedSignals, log);
+    // A log can mention a missing script for a nested command. Only repository
+    // evidence from the root package may establish this diagnostic.
+    const logFindings = findingsFromSignals(log.matchedSignals.filter(signal => signal.category !== 'BUILD_SCRIPT_MISSING'), log);
     findings.push(...logFindings);
   }
 

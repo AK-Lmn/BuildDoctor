@@ -139,6 +139,32 @@ describe('detectProject', () => {
     });
   });
 
+  describe('root project evidence', () => {
+    it('uses the root package.json before a nested fixture package', () => {
+      const files = [
+        makeFile('fixtures/empty/package.json', JSON.stringify({ scripts: {} })),
+        makeFile('package.json', JSON.stringify({ dependencies: { next: '^15.0.0' }, scripts: { build: 'next build' } })),
+      ];
+      const snapshot = detectProject(files, 'owner/repo');
+      expect(snapshot.framework).toBe('Next.js');
+      expect(snapshot.buildCommand).toBe('next build');
+    });
+
+    it('ignores test and example metadata when deriving root metadata', () => {
+      const files = [
+        makeFile('package.json', JSON.stringify({ dependencies: { react: '^19.0.0' } })),
+        makeFile('e2e/package.json', JSON.stringify({ dependencies: { vue: '^3.0.0' } })),
+        makeFile('examples/next.config.ts', 'export default {}'),
+      ];
+      expect(detectProject(files, 'owner/repo').framework).toBe('React');
+    });
+
+    it('recognizes a root tsconfig as TypeScript usage', () => {
+      const files = [makeFile('package.json', '{}'), makeFile('tsconfig.json', '{}')];
+      expect(detectProject(files, 'owner/repo').typescriptUsage).toBe(true);
+    });
+  });
+
   describe('lockfiles', () => {
     it('lists found lockfiles', () => {
       const files = [

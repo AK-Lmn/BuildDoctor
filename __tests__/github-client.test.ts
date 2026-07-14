@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { shouldFetchFile } from '@/lib/github/client';
+import { rankCandidateFiles, shouldFetchFile } from '@/lib/github/client';
 import type { GitHubTreeItem } from '@/lib/github/client';
 
 function makeItem(path: string, size?: number, type: 'blob' | 'tree' = 'blob'): GitHubTreeItem {
@@ -67,6 +67,26 @@ describe('shouldFetchFile', () => {
   it('allows files referenced by errors', () => {
     const referenced = new Set(['src/components/MyComponent.tsx']);
     expect(shouldFetchFile(makeItem('src/components/MyComponent.tsx', 5000), referenced)).toBe(true);
+  });
+
+  it('does not fetch test and example files unless referenced', () => {
+    expect(shouldFetchFile(makeItem('test/helpers.ts', 100), referencedFiles)).toBe(false);
+    expect(shouldFetchFile(makeItem('examples/demo.ts', 100), referencedFiles)).toBe(false);
+  });
+
+  it('ranks log references first and root configuration before source files', () => {
+    const ranked = rankCandidateFiles([
+      makeItem('src/app.ts', 10), makeItem('package.json', 10), makeItem('tsconfig.json', 10),
+      makeItem('src/failing.ts', 10),
+    ], new Set(['src/failing.ts']));
+    expect(ranked.map(item => item.path)).toEqual(['src/failing.ts', 'package.json', 'tsconfig.json', 'src/app.ts']);
+  });
+
+  it('keeps root configuration within the first 50 fetch candidates', () => {
+    const items = Array.from({ length: 60 }, (_, index) => makeItem(`src/file-${index}.ts`, 10));
+    items.push(makeItem('package.json', 10), makeItem('tsconfig.json', 10));
+    const firstFifty = rankCandidateFiles(items, referencedFiles).slice(0, 50).map(item => item.path);
+    expect(firstFifty).toEqual(expect.arrayContaining(['package.json', 'tsconfig.json']));
   });
 
   it('blocks tree entries (directories)', () => {

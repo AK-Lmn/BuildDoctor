@@ -4,15 +4,13 @@
 
 import type { GitHubFile } from './github/client';
 import type { ProjectSnapshot } from './types';
+import { isDeclaredWorkspacePackage, isNonProjectPath, rootFile, workspacePatterns } from './project-files';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function findFile(files: GitHubFile[], ...names: string[]): GitHubFile | undefined {
   for (const name of names) {
-    const found = files.find(f => {
-      const base = f.path.split('/').pop()!;
-      return base === name || f.path === name;
-    });
+    const found = rootFile(files, name);
     if (found) return found;
   }
   return undefined;
@@ -29,19 +27,19 @@ function parseJsonSafe(content: string): Record<string, unknown> | null {
 // ── Package manager detection ─────────────────────────────────────────────────
 
 function detectPackageManager(files: GitHubFile[]): { name: string; version?: string } {
-  const lockfiles = files.map(f => f.path.split('/').pop()!);
+  const lockfiles = files.filter(f => !isNonProjectPath(f.path)).map(f => f.path);
 
   if (lockfiles.includes('bun.lock') || lockfiles.includes('bun.lockb')) return { name: 'bun' };
   if (lockfiles.includes('pnpm-lock.yaml')) return { name: 'pnpm' };
   if (lockfiles.includes('yarn.lock')) {
     // Detect yarn version from lock content
-    const yarnLock = files.find(f => f.path.endsWith('yarn.lock'));
+    const yarnLock = rootFile(files, 'yarn.lock');
     if (yarnLock?.content.includes('__metadata')) return { name: 'yarn', version: '3+' };
     return { name: 'yarn', version: '1' };
   }
   if (lockfiles.includes('package-lock.json') || lockfiles.includes('npm-shrinkwrap.json')) {
     // Detect npm version from lockfile version field
-    const lockfile = files.find(f => f.path.endsWith('package-lock.json'));
+    const lockfile = rootFile(files, 'package-lock.json');
     if (lockfile) {
       const parsed = parseJsonSafe(lockfile.content) as { lockfileVersion?: number } | null;
       if (parsed?.lockfileVersion === 3) return { name: 'npm', version: '7+' };
@@ -169,20 +167,21 @@ export function detectProject(
 
   // Lockfiles present
   const lockfiles = files
-    .map(f => f.path.split('/').pop()!)
-    .filter(name => ['package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'bun.lock', 'bun.lockb', 'npm-shrinkwrap.json'].includes(name));
+    .filter(f => !isNonProjectPath(f.path))
+    .map(f => f.path)
+    .filter(path => ['package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'bun.lock', 'bun.lockb', 'npm-shrinkwrap.json'].includes(path));
 
   // Is monorepo?
+  const patterns = workspacePatterns(pkg);
   const isMonorepo = !!(
-    (pkg as Record<string, unknown> | null)?.workspaces ||
+    patterns.length ||
     findFile(files, 'turbo.json') ||
-    findFile(files, 'nx.json') ||
-    files.some(f => /packages\/[^/]+\/package\.json/.test(f.path))
+    findFile(files, 'nx.json')
   );
 
   // Workspace packages
   const workspacePackages = files
-    .filter(f => /packages\/[^/]+\/package\.json$/.test(f.path))
+    .filter(f => isDeclaredWorkspacePackage(f.path, patterns))
     .map(f => f.path.replace('/package.json', '').split('/').pop()!);
 
   // Scripts
@@ -195,6 +194,7 @@ export function detectProject(
   // Config files found
   const configFilesFound = files
     .filter(f => {
+      if (f.path.includes('/')) return false;
       const name = f.path.split('/').pop()!;
       return [
         'package.json', 'tsconfig.json', 'next.config.js', 'next.config.mjs', 'next.config.ts',
@@ -215,12 +215,12 @@ export function detectProject(
   let deploymentConfig: string | undefined;
   if (findFile(files, 'vercel.json')) deploymentConfig = 'Vercel';
   else if (findFile(files, 'netlify.toml')) deploymentConfig = 'Netlify';
-  else if (files.some(f => f.path.startsWith('.github/workflows/'))) deploymentConfig = 'GitHub Actions';
+  else if (files.some(f => f.path.startsWith('.github/workflows/') && !isNonProjectPath(f.path))) deploymentConfig = 'GitHub Actions';
 
   return {
     repositoryName,
     selectedRef,
-    primaryLanguage: 'TypeScript' in allDeps || files.some(f => f.path.endsWith('.ts') || f.path.endsWith('.tsx'))
+    primaryLanguage: 'TypeScript' in allDeps || !!rootFile(files, 'tsconfig.json') || files.some(f => !isNonProjectPath(f.path) && (f.path.endsWith('.ts') || f.path.endsWith('.tsx')))
       ? 'TypeScript'
       : 'JavaScript',
     framework,
@@ -231,7 +231,7 @@ export function detectProject(
     testCommand,
     lintCommand,
     nodeVersionRequirement: nodeVersion,
-    typescriptUsage: files.some(f => f.path.endsWith('.ts') || f.path.endsWith('.tsx')),
+    typescriptUsage: !!rootFile(files, 'tsconfig.json') || files.some(f => !isNonProjectPath(f.path) && (f.path.endsWith('.ts') || f.path.endsWith('.tsx'))),
     isMonorepo,
     workspacePackages: workspacePackages.length > 0 ? workspacePackages : undefined,
     deploymentConfig,
