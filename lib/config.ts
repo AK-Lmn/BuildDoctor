@@ -44,7 +44,7 @@ export const ALLOWED_UPLOAD_TYPES = ['text/plain', 'text/x-log', 'application/oc
 export const ALLOWED_UPLOAD_EXTENSIONS = ['.txt', '.log'];
 
 /** Gemini model — centralized, server-only */
-export const GEMINI_MODEL = 'gemini-2.5-flash';
+export const GEMINI_MODEL = 'gemini-3.5-flash';
 
 /** Supported deployment platforms */
 export const PLATFORMS = [

@@ -13,6 +13,7 @@ import type {
   ProjectSnapshot,
   DeterministicFinding,
   DiagnoseInput,
+  AiSynthesisState,
 } from './types';
 import type { GitHubFile } from './github/client';
 
@@ -138,7 +139,7 @@ function validateEvidence(
   report: z.infer<typeof GeminiDiagnosisSchema>,
   log: NormalizedLog | null,
   files: GitHubFile[]
-): z.infer<typeof GeminiDiagnosisSchema> {
+): { report: z.infer<typeof GeminiDiagnosisSchema>; removed: boolean } {
   const validatedFiles = new Set(files.map(f => f.path));
   const logLineCount = log?.normalizedLineCount ?? 0;
 
@@ -160,10 +161,7 @@ function validateEvidence(
     return true;
   });
 
-  return {
-    ...report,
-    evidence: validEvidence.slice(0, LIMITS.EVIDENCE_MAX),
-  };
+  return { report: { ...report, evidence: validEvidence.slice(0, LIMITS.EVIDENCE_MAX) }, removed: validEvidence.length !== report.evidence.length };
 }
 
 // ── Main adapter ──────────────────────────────────────────────────────────────
@@ -171,7 +169,11 @@ function validateEvidence(
 export interface GeminiAdapterResult {
   report: z.infer<typeof DiagnosisReport>;
   usedAI: boolean;
+  state: AiSynthesisState;
   repairAttempted: boolean;
+  httpStatus?: number;
+  parsingFailed: boolean;
+  evidenceValidationRemoved: boolean;
 }
 
 export async function runGeminiDiagnosis(
@@ -185,7 +187,7 @@ export async function runGeminiDiagnosis(
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    throw Object.assign(new Error('GEMINI_API_KEY is not configured'), { code: 'GEMINI_NOT_CONFIGURED' });
+    return deterministicFallback('not-configured', deterministicFindings);
   }
 
   const ai = new GoogleGenAI({ apiKey });
@@ -194,6 +196,7 @@ export async function runGeminiDiagnosis(
 
   let rawResponse: unknown;
   let repairAttempted = false;
+  let parsingFailed = false;
 
   // First attempt
   try {
@@ -202,27 +205,25 @@ export async function runGeminiDiagnosis(
       ? AbortSignal.any([signal, timeoutSignal])
       : timeoutSignal;
 
-    const response = await ai.models.generateContent({
+    const response = await awaitWithSignal(ai.models.generateContent({
       model: GEMINI_MODEL,
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
       },
-    });
+    }), combinedSignal);
 
     const text = response.text;
     if (!text) throw new Error('Empty response from AI');
 
     rawResponse = JSON.parse(text);
-    void combinedSignal; // used for cancellation concept
+    void combinedSignal; // The installed SDK does not expose an AbortSignal request option.
   } catch (err) {
     if ((err as Error).name === 'AbortError') {
-      throw Object.assign(new Error('AI diagnosis timed out'), { code: 'AI_ANALYSIS_FAILED' });
+      return deterministicFallback('timeout', deterministicFindings);
     }
-    throw Object.assign(
-      new Error('AI analysis failed: ' + (err instanceof Error ? err.message : 'unknown error')),
-      { code: 'AI_ANALYSIS_FAILED' }
-    );
+    parsingFailed = err instanceof SyntaxError;
+    return deterministicFallback(parsingFailed ? 'invalid-structured-output' : 'provider-error', deterministicFindings, { parsingFailed, httpStatus: getHttpStatus(err) });
   }
 
   // Validate with Zod
@@ -241,13 +242,13 @@ ${JSON.stringify(rawResponse).slice(0, 2000)}
 
 Return only valid JSON.`;
 
-      const repairResp = await ai.models.generateContent({
+      const repairResp = await awaitWithSignal(ai.models.generateContent({
         model: GEMINI_MODEL,
         contents: repairPrompt,
         config: {
           responseMimeType: 'application/json',
         },
-      });
+      }), signal ? AbortSignal.any([signal, AbortSignal.timeout(LIMITS.AI_TIMEOUT_MS)]) : AbortSignal.timeout(LIMITS.AI_TIMEOUT_MS));
 
       const repairText = repairResp.text;
       if (repairText) {
@@ -259,25 +260,54 @@ Return only valid JSON.`;
     }
   }
 
-  if (!parsed.success) {
-    throw Object.assign(new Error('AI structured response failed validation'), { code: 'AI_ANALYSIS_FAILED' });
-  }
+  if (!parsed.success) return deterministicFallback('invalid-structured-output', deterministicFindings, { repairAttempted, parsingFailed });
 
   // Post-process: validate evidence references
   const validated = validateEvidence(parsed.data, log, files);
+  if (validated.removed) return deterministicFallback('evidence-validation-failed', deterministicFindings, { repairAttempted, evidenceValidationRemoved: true });
 
   // Map to DiagnosisReport, adding IDs and usedAI
-  const report = DiagnosisReport.parse({
-    ...validated,
-    evidence: validated.evidence.map((ev, i) => ({
-      ...ev,
-      id: ev.id ?? `ai-ev-${i}`,
-    })),
-    usedAI: true,
-    severityCounts: computeSeverityCounts(validated),
-  });
+  let report: z.infer<typeof DiagnosisReport>;
+  try {
+    report = DiagnosisReport.parse({
+      ...validated.report,
+      evidence: validated.report.evidence.map((ev, i) => ({
+        ...ev,
+        id: ev.id ?? `ai-ev-${i}`,
+      })),
+      usedAI: true,
+      severityCounts: computeSeverityCounts(validated.report),
+    });
+  } catch {
+    return deterministicFallback('invalid-structured-output', deterministicFindings, { repairAttempted, parsingFailed: true });
+  }
 
-  return { report, usedAI: true, repairAttempted };
+  return { report, usedAI: true, state: 'used', repairAttempted, parsingFailed: false, evidenceValidationRemoved: false };
+}
+
+function deterministicFallback(
+  state: Exclude<AiSynthesisState, 'used'>,
+  findings: DeterministicFinding[],
+  details: Partial<GeminiAdapterResult> = {}
+): GeminiAdapterResult {
+  return {
+    report: buildDeterministicReport(findings, state), usedAI: false, state, repairAttempted: false,
+    parsingFailed: false, evidenceValidationRemoved: false, ...details,
+  };
+}
+
+function getHttpStatus(error: unknown): number | undefined {
+  const value = error as { status?: unknown; response?: { status?: unknown } };
+  const status = value.status ?? value.response?.status;
+  return typeof status === 'number' ? status : undefined;
+}
+
+function awaitWithSignal<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) return Promise.reject(new DOMException('Aborted', 'AbortError'));
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')), { once: true })),
+  ]);
 }
 
 function computeSeverityCounts(report: z.infer<typeof GeminiDiagnosisSchema>) {
@@ -292,8 +322,16 @@ function computeSeverityCounts(report: z.infer<typeof GeminiDiagnosisSchema>) {
 // ── Deterministic fallback report ─────────────────────────────────────────────
 
 export function buildDeterministicReport(
-  findings: DeterministicFinding[]
+  findings: DeterministicFinding[],
+  aiState: Exclude<AiSynthesisState, 'used'> = 'not-configured'
 ): z.infer<typeof DiagnosisReport> {
+  const aiMessage = aiState === 'not-configured'
+    ? 'AI analysis was not performed — provide a GEMINI_API_KEY for full diagnosis.'
+    : aiState === 'invalid-structured-output'
+      ? 'The AI response could not be validated, so deterministic findings were returned.'
+      : aiState === 'evidence-validation-failed'
+        ? 'AI synthesis was unavailable because its evidence references could not be validated, so deterministic findings were returned.'
+        : 'AI synthesis was unavailable, so this report uses deterministic analysis.';
   const primary = findings[0];
 
   if (!primary) {
@@ -326,14 +364,14 @@ export function buildDeterministicReport(
         'What does the build log show before the failure?',
       ],
       limitations: [
-        'AI analysis was not available (GEMINI_API_KEY not configured)',
+        aiMessage,
         'Limited evidence available for diagnosis',
       ],
       usedAI: false,
     };
   }
 
-  return {
+  const deterministic: z.infer<typeof DiagnosisReport> = {
     status: findings.length > 0 ? 'partial' : 'insufficient-evidence',
     primaryDiagnosis: {
       title: primary.title,
@@ -376,4 +414,7 @@ export function buildDeterministicReport(
       low: findings.filter(f => f.severity === 'low').length,
     },
   };
+  return aiState === 'not-configured'
+    ? deterministic
+    : { ...deterministic, unresolvedQuestions: [aiMessage], limitations: [aiMessage] };
 }

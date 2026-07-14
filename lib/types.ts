@@ -176,6 +176,11 @@ export type DeterministicFinding = z.infer<typeof DeterministicFinding>;
 export const DiagnosisStatus = z.enum(['diagnosed', 'partial', 'insufficient-evidence']);
 export type DiagnosisStatus = z.infer<typeof DiagnosisStatus>;
 
+export const AiSynthesisState = z.enum([
+  'used', 'not-configured', 'provider-error', 'timeout', 'invalid-structured-output', 'evidence-validation-failed',
+]);
+export type AiSynthesisState = z.infer<typeof AiSynthesisState>;
+
 export const DiagnosisReport = z.object({
   status: DiagnosisStatus,
   primaryDiagnosis: z.object({
@@ -229,6 +234,7 @@ export const DiagnoseResponse = z.object({
   filesInspected: z.array(z.string()),
   githubRateLimit: GithubRateLimit.optional(),
   aiUsed: z.boolean(),
+  aiSynthesisState: AiSynthesisState,
   processingMs: z.number().int().nonnegative(),
 });
 export type DiagnoseResponse = z.infer<typeof DiagnoseResponse>;

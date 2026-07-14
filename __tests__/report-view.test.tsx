@@ -12,6 +12,7 @@ const result = {
   deterministicFindings: [],
   filesInspected: Array.from({ length: 12 }, (_, index) => `src/file-${index}.ts`),
   aiUsed: false,
+  aiSynthesisState: 'not-configured',
   processingMs: 1,
 } as DiagnoseResponse;
 

@@ -132,6 +132,7 @@ describe('generateMarkdownReport', () => {
     deterministicFindings: [makeFinding()],
     filesInspected: ['package.json', 'next.config.ts'],
     aiUsed: false,
+    aiSynthesisState: 'not-configured',
     processingMs: 1234,
   };
 

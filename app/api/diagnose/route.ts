@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { DiagnoseInput, DiagnoseResponse, GithubRateLimit } from '@/lib/types';
-import { LIMITS } from '@/lib/config';
+import { GEMINI_MODEL, LIMITS } from '@/lib/config';
 import { parseGitHubUrl } from '@/lib/github/url-parser';
 import { fetchRepository } from '@/lib/github/client';
 import { normalizeBuildLog } from '@/lib/log-normalizer';
@@ -140,6 +140,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // 8. Run AI diagnosis
     let report: DiagnoseResponse['report'];
     let aiUsed = false;
+    let aiSynthesisState: DiagnoseResponse['aiSynthesisState'] = 'not-configured';
 
     const geminiKey = process.env.GEMINI_API_KEY;
 
@@ -155,18 +156,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         );
         report = geminiResult.report;
         aiUsed = geminiResult.usedAI;
+        aiSynthesisState = geminiResult.state;
+        if (!aiUsed) {
+          console.warn('[BuildDoctor] AI synthesis fallback', {
+            failureCategory: geminiResult.state,
+            httpStatus: geminiResult.httpStatus,
+            model: GEMINI_MODEL,
+            parsingFailed: geminiResult.parsingFailed,
+            evidenceValidationRemoved: geminiResult.evidenceValidationRemoved,
+          });
+        }
       } catch (err: unknown) {
         const code = (err as { code?: string }).code;
         if (code === 'GEMINI_NOT_CONFIGURED') {
           // Should not happen since we checked, but handle gracefully
-          report = buildDeterministicReport(deterministicFindings);
+          aiSynthesisState = 'not-configured';
+          report = buildDeterministicReport(deterministicFindings, aiSynthesisState);
         } else {
           // AI failed — fall back to deterministic
-          report = buildDeterministicReport(deterministicFindings);
+          aiSynthesisState = 'provider-error';
+          report = buildDeterministicReport(deterministicFindings, aiSynthesisState);
         }
       }
     } else {
-      report = buildDeterministicReport(deterministicFindings);
+      report = buildDeterministicReport(deterministicFindings, 'not-configured');
     }
 
     // 9. Build response
@@ -177,6 +190,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       filesInspected: files.map(f => f.path),
       githubRateLimit,
       aiUsed,
+      aiSynthesisState,
       processingMs: Date.now() - startMs,
     };
 

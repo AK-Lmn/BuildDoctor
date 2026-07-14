@@ -87,6 +87,7 @@ Error: Command failed with exit code 1
       report,
       filesInspected: repoFiles.map(f => f.path),
       aiUsed: false,
+      aiSynthesisState: 'not-configured',
       processingMs: 500,
     };
 
