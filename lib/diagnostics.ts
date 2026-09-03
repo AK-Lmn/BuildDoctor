@@ -72,17 +72,31 @@ function checkPackageManagerMismatch(
   files: GitHubFile[],
   snapshot: Partial<ProjectSnapshot>
 ): DeterministicFinding | null {
-  const pmName = snapshot.packageManager;
+  const pkgFile = findFile(files, 'package.json');
+  const pkg = pkgFile ? (parseJsonSafe(pkgFile.content) as { packageManager?: string } | null) : null;
+  const declaredField = pkg?.packageManager;
+
+  let declaredPm: string | undefined;
+  if (declaredField) {
+    if (declaredField.startsWith('pnpm')) declaredPm = 'pnpm';
+    else if (declaredField.startsWith('yarn')) declaredPm = 'yarn';
+    else if (declaredField.startsWith('bun')) declaredPm = 'bun';
+    else if (declaredField.startsWith('npm')) declaredPm = 'npm';
+  }
+
+  const pmName = declaredPm || snapshot.packageManager;
   if (!pmName) return null;
 
   const hasPackageLock = files.some(f => f.path.endsWith('package-lock.json'));
   const hasYarnLock = files.some(f => f.path.endsWith('yarn.lock'));
   const hasPnpmLock = files.some(f => f.path.endsWith('pnpm-lock.yaml'));
+  const hasBunLock = files.some(f => f.path.endsWith('bun.lock') || f.path.endsWith('bun.lockb'));
 
   const mismatch =
-    (pmName === 'pnpm' && (hasPackageLock || hasYarnLock)) ||
-    (pmName === 'yarn' && (hasPackageLock || hasPnpmLock)) ||
-    (pmName === 'npm' && (hasYarnLock || hasPnpmLock));
+    (pmName === 'pnpm' && (hasPackageLock || hasYarnLock || hasBunLock)) ||
+    (pmName === 'yarn' && (hasPackageLock || hasPnpmLock || hasBunLock)) ||
+    (pmName === 'npm' && (hasYarnLock || hasPnpmLock || hasBunLock)) ||
+    (pmName === 'bun' && (hasPackageLock || hasYarnLock || hasPnpmLock));
 
   if (!mismatch) return null;
 
@@ -185,7 +199,7 @@ function checkDuplicateDependencies(files: GitHubFile[]): DeterministicFinding |
     severity: 'medium',
     confidence: 'high',
     title: `Packages in both dependencies and devDependencies: ${duplicates.slice(0, 5).join(', ')}`,
-    summary: 'These packages are declared in both dependencies and devDependencies, which can cause version conflicts.',
+    summary: `These packages are declared in both dependencies and devDependencies (${duplicates.join(', ')}), which can cause version conflicts.`,
     evidence: [
       {
         id: nextEvidenceId(),

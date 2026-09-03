@@ -171,6 +171,23 @@ export const DeterministicFinding = z.object({
 });
 export type DeterministicFinding = z.infer<typeof DeterministicFinding>;
 
+// ── Structured Diagnostic (Modular Analyzer) ──────────────────────────────────
+
+export const DiagnosticStatus = z.enum(['pass', 'warn', 'fail']);
+export type DiagnosticStatus = z.infer<typeof DiagnosticStatus>;
+
+export const StructuredDiagnostic = z.object({
+  status: DiagnosticStatus,
+  code: z.string(),
+  description: z.string(),
+  remediation: z.string(),
+  category: DiagnosticCategory.optional(),
+  severity: Severity.optional(),
+  file: z.string().optional(),
+  evidence: z.array(EvidenceItem).optional(),
+});
+export type StructuredDiagnostic = z.infer<typeof StructuredDiagnostic>;
+
 // ── Diagnosis Report ──────────────────────────────────────────────────────────
 
 export const DiagnosisStatus = z.enum(['diagnosed', 'partial', 'insufficient-evidence']);

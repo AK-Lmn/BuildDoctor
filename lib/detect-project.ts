@@ -27,6 +27,18 @@ function parseJsonSafe(content: string): Record<string, unknown> | null {
 // ── Package manager detection ─────────────────────────────────────────────────
 
 function detectPackageManager(files: GitHubFile[]): { name: string; version?: string } {
+  // Check root package.json for packageManager field first (Corepack standard)
+  const pkgFile = findFile(files, 'package.json');
+  if (pkgFile) {
+    const pkg = parseJsonSafe(pkgFile.content) as { packageManager?: string } | null;
+    if (pkg?.packageManager) {
+      if (pkg.packageManager.startsWith('pnpm')) return { name: 'pnpm', version: pkg.packageManager.split('@')[1] };
+      if (pkg.packageManager.startsWith('yarn')) return { name: 'yarn', version: pkg.packageManager.split('@')[1] };
+      if (pkg.packageManager.startsWith('bun')) return { name: 'bun', version: pkg.packageManager.split('@')[1] };
+      if (pkg.packageManager.startsWith('npm')) return { name: 'npm', version: pkg.packageManager.split('@')[1] };
+    }
+  }
+
   const lockfiles = files.filter(f => !isNonProjectPath(f.path)).map(f => f.path);
 
   if (lockfiles.includes('bun.lock') || lockfiles.includes('bun.lockb')) return { name: 'bun' };
@@ -46,18 +58,6 @@ function detectPackageManager(files: GitHubFile[]): { name: string; version?: st
       if (parsed?.lockfileVersion === 2) return { name: 'npm', version: '7+' };
     }
     return { name: 'npm' };
-  }
-
-  // Check package.json for packageManager field
-  const pkgFile = findFile(files, 'package.json');
-  if (pkgFile) {
-    const pkg = parseJsonSafe(pkgFile.content) as { packageManager?: string } | null;
-    if (pkg?.packageManager) {
-      if (pkg.packageManager.startsWith('pnpm')) return { name: 'pnpm', version: pkg.packageManager.split('@')[1] };
-      if (pkg.packageManager.startsWith('yarn')) return { name: 'yarn', version: pkg.packageManager.split('@')[1] };
-      if (pkg.packageManager.startsWith('bun')) return { name: 'bun', version: pkg.packageManager.split('@')[1] };
-      if (pkg.packageManager.startsWith('npm')) return { name: 'npm', version: pkg.packageManager.split('@')[1] };
-    }
   }
 
   return { name: 'npm' };

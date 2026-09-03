@@ -1,0 +1,13 @@
+{
+  "name": "duplicate-deps",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "next build"
+  },
+  "dependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "react": "^19.0.0"
+  }
+}

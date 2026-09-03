@@ -311,8 +311,10 @@ function safeIssueDetails(error: z.ZodError): Array<Record<string, unknown>> {
 }
 
 function logSchemaIssues(error: z.ZodError, phase: 'initial' | 'repair'): void {
-  for (const issue of safeIssueDetails(error)) {
-    console.warn('[BuildDoctor] AI schema validation failure', { failureCategory: 'invalid-structured-output', phase, ...issue });
+  if (process.env.BUILD_DOCTOR_DEBUG === 'true') {
+    for (const issue of safeIssueDetails(error)) {
+      console.warn('[BuildDoctor] AI schema validation failure', { failureCategory: 'invalid-structured-output', phase, ...issue });
+    }
   }
 }
 

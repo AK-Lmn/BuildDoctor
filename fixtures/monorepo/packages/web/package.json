@@ -1,0 +1,10 @@
+{
+  "name": "@mono/web",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "next build"
+  },
+  "dependencies": {
+    "next": "15.0.0"
+  }
+}
