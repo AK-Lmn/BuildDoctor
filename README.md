@@ -16,7 +16,7 @@ Built by [AK-Lmn](https://github.com/AK-Lmn).
 [![Vitest](https://img.shields.io/badge/Vitest-139%20passed-6e9f18?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
 [![Star on GitHub](https://img.shields.io/github/stars/AK-Lmn/BuildDoctor?style=flat-square&logo=github&color=9d7bff)](https://github.com/AK-Lmn/BuildDoctor)
 
-[Live App](https://build-doctor-orpin.vercel.app) • [Architecture](#architecture) • [Getting Started](#getting-started) • [Safety](#safety-and-limits)
+[Live App](https://build-doctor.vercel.app) • [Architecture](#architecture) • [Getting Started](#getting-started) • [Safety](#safety-and-limits)
 
 </div>
 
