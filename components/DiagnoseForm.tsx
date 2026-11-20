@@ -196,37 +196,47 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
       <AnimatePresence>
         {initialError && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
             role="alert"
             aria-live="assertive"
             style={{
-              background: 'rgba(255,107,129,0.1)',
-              border: '1px solid rgba(255,107,129,0.3)',
-              borderRadius: '10px',
+              background: 'rgba(255, 107, 129, 0.08)',
+              border: '1px solid rgba(255, 107, 129, 0.25)',
+              borderRadius: '12px',
               padding: '14px 18px',
               marginBottom: '20px',
-              color: '#ff6b81',
-              fontSize: '14px',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px',
+              justifyContent: 'space-between',
+              gap: '12px',
+              flexWrap: 'wrap',
             }}
           >
-            <AlertTriangle size={18} style={{ flexShrink: 0, color: '#ff6b81' }} />
-            <div style={{ flex: 1 }}>
-              <strong>Diagnosis failed:</strong> {initialError}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: '220px' }}>
+              <AlertTriangle size={17} style={{ flexShrink: 0, color: '#ff6b81' }} />
+              <div style={{ fontSize: '13px', lineHeight: 1.5, color: '#ffffff' }}>
+                <span style={{ color: '#ff6b81', fontWeight: 600 }}>Couldn&apos;t complete diagnosis.</span>{' '}
+                <span style={{ color: '#a4a7bd' }}>
+                  {initialError.includes('Failed to fetch')
+                    ? 'Unable to reach the GitHub repository. Check that the link is public and accessible.'
+                    : initialError.includes('rate limit')
+                    ? 'GitHub rate limit reached. Please wait a few moments or paste your build log directly.'
+                    : initialError}
+                </span>
+              </div>
             </div>
             {onRetry && (
               <button
+                type="button"
                 onClick={onRetry}
                 style={{
-                  background: 'rgba(255,107,129,0.15)',
-                  border: '1px solid rgba(255,107,129,0.3)',
+                  background: 'rgba(255, 107, 129, 0.12)',
+                  border: '1px solid rgba(255, 107, 129, 0.3)',
                   borderRadius: '6px',
                   color: '#ff6b81',
-                  padding: '6px 12px',
+                  padding: '6px 14px',
                   fontSize: '12px',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -234,10 +244,21 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '6px',
+                  transition: 'background 150ms ease, border-color 150ms ease, color 150ms ease',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(255, 107, 129, 0.22)';
+                  e.currentTarget.style.borderColor = '#ff6b81';
+                  e.currentTarget.style.color = '#ffffff';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'rgba(255, 107, 129, 0.12)';
+                  e.currentTarget.style.borderColor = 'rgba(255, 107, 129, 0.3)';
+                  e.currentTarget.style.color = '#ff6b81';
                 }}
               >
                 <RotateCcw size={13} />
-                <span>Retry</span>
+                <span>Try again</span>
               </button>
             )}
           </motion.div>
