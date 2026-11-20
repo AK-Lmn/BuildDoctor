@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { DiagnoseResponse, DiagnoseInput, ReportFilter } from '@/lib/types';
 import { generateMarkdownReport } from '@/lib/export';
 
@@ -150,19 +151,29 @@ export default function ReportView({ input, result, onNewDiagnosis, onAnalyzeAga
   ];
 
   return (
-    <div className="animate-fade-in" aria-live="polite" aria-label="Diagnosis report">
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+      aria-live="polite"
+      aria-label="Diagnosis report"
+    >
       {/* Status banner */}
-      <div style={{
-        background: report.status === 'diagnosed' ? 'rgba(52,211,153,0.08)' : 'rgba(245,158,11,0.08)',
-        border: `1px solid ${report.status === 'diagnosed' ? 'rgba(52,211,153,0.3)' : 'rgba(245,158,11,0.3)'}`,
-        borderRadius: '8px',
-        padding: '12px 16px',
-        marginBottom: '16px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        flexWrap: 'wrap',
-      }}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        style={{
+          background: report.status === 'diagnosed' ? 'rgba(52,211,153,0.08)' : 'rgba(245,158,11,0.08)',
+          border: `1px solid ${report.status === 'diagnosed' ? 'rgba(52,211,153,0.3)' : 'rgba(245,158,11,0.3)'}`,
+          borderRadius: '8px',
+          padding: '12px 16px',
+          marginBottom: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          flexWrap: 'wrap',
+        }}
+      >
         <span style={{ fontSize: '18px' }}>
           {report.status === 'diagnosed' ? '✓' : report.status === 'partial' ? '◑' : '?'}
         </span>
@@ -182,7 +193,7 @@ export default function ReportView({ input, result, onNewDiagnosis, onAnalyzeAga
           )}
         </div>
         <span style={{ fontSize: '12px', color: '#555a68' }}>{processingMs}ms</span>
-      </div>
+      </motion.div>
 
       {/* Primary Diagnosis */}
       <Card style={{ marginBottom: '16px', borderColor: SEVERITY_COLORS[pd.severity] + '40' }}>
@@ -645,72 +656,85 @@ export default function ReportView({ input, result, onNewDiagnosis, onAnalyzeAga
       {/* Actions */}
       <div style={{
         display: 'flex',
-        gap: '10px',
+        gap: '12px',
         flexWrap: 'wrap',
         paddingTop: '16px',
-        borderTop: '1px solid #2a2d35',
+        borderTop: '1px solid var(--bd-border, #2a2d35)',
       }}>
-        <button
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={handleCopyMarkdown}
           style={{
-            padding: '10px 16px',
+            padding: '10px 18px',
             background: copied ? 'rgba(52,211,153,0.1)' : 'rgba(245,158,11,0.08)',
             border: `1px solid ${copied ? 'rgba(52,211,153,0.3)' : 'rgba(245,158,11,0.3)'}`,
             borderRadius: '6px',
             color: copied ? '#34d399' : '#f59e0b',
             fontSize: '13px',
+            fontWeight: 600,
             cursor: 'pointer',
             whiteSpace: 'nowrap',
+            transition: 'background 150ms, color 150ms',
           }}
         >
           {copied ? '✓ Copied!' : '📋 Copy Markdown'}
-        </button>
-        <button
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={handleDownloadJSON}
           style={{
-            padding: '10px 16px',
+            padding: '10px 18px',
             background: 'rgba(34,211,238,0.06)',
             border: '1px solid rgba(34,211,238,0.2)',
             borderRadius: '6px',
             color: '#22d3ee',
             fontSize: '13px',
+            fontWeight: 600,
             cursor: 'pointer',
             whiteSpace: 'nowrap',
           }}
         >
           ↓ Download JSON
-        </button>
-        <button
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={onAnalyzeAgain}
           style={{
-            padding: '10px 16px',
+            padding: '10px 18px',
             background: 'transparent',
-            border: '1px solid #2a2d35',
+            border: '1px solid var(--bd-border, #2a2d35)',
             borderRadius: '6px',
-            color: '#8b909e',
+            color: 'var(--bd-text-secondary, #8b909e)',
             fontSize: '13px',
+            fontWeight: 500,
             cursor: 'pointer',
             whiteSpace: 'nowrap',
           }}
         >
           ↺ Analyze Again
-        </button>
-        <button
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={onNewDiagnosis}
           style={{
-            padding: '10px 16px',
+            padding: '10px 18px',
             background: 'transparent',
-            border: '1px solid #2a2d35',
+            border: '1px solid var(--bd-border, #2a2d35)',
             borderRadius: '6px',
-            color: '#8b909e',
+            color: 'var(--bd-text-secondary, #8b909e)',
             fontSize: '13px',
+            fontWeight: 500,
             cursor: 'pointer',
             whiteSpace: 'nowrap',
           }}
         >
           + New Diagnosis
-        </button>
+        </motion.button>
       </div>
-    </div>
+    </motion.div>
   );
 }

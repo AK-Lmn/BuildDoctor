@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { DiagnoseInput, Platform } from '@/lib/types';
 import { LIMITS, PLATFORMS, ALLOWED_UPLOAD_EXTENSIONS } from '@/lib/config';
 
@@ -159,65 +160,74 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
   }, []);
 
   return (
-    <div className="animate-fade-in">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+    >
       {/* Hero */}
       <div style={{ marginBottom: '32px', paddingTop: '8px' }}>
         <h1 style={{
-          fontSize: 'clamp(22px, 5vw, 32px)',
+          fontSize: 'clamp(24px, 5vw, 36px)',
           fontWeight: 800,
           color: '#f59e0b',
           letterSpacing: '-0.03em',
-          margin: '0 0 8px 0',
+          margin: '0 0 10px 0',
           lineHeight: 1.2,
         }}>
           Turn build failures into a fix plan.
         </h1>
-        <p style={{ color: '#8b909e', fontSize: '15px', margin: 0, maxWidth: '560px' }}>
+        <p style={{ color: 'var(--bd-text-secondary, #8b909e)', fontSize: '15px', margin: 0, maxWidth: '600px', lineHeight: 1.6 }}>
           Provide a public GitHub repository and/or build log. BuildDoctor analyzes configuration files, detects error patterns, and produces an evidence-backed repair plan.
         </p>
       </div>
 
       {/* Error banner */}
-      {initialError && (
-        <div
-          role="alert"
-          aria-live="assertive"
-          style={{
-            background: 'rgba(248,113,113,0.08)',
-            border: '1px solid rgba(248,113,113,0.3)',
-            borderRadius: '6px',
-            padding: '12px 16px',
-            marginBottom: '20px',
-            color: '#f87171',
-            fontSize: '14px',
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '8px',
-          }}
-        >
-          <span aria-hidden>⚠</span>
-          <div style={{ flex: 1 }}>
-            <strong>Diagnosis failed:</strong> {initialError}
-          </div>
-          {onRetry && (
-            <button
-              onClick={onRetry}
-              style={{
-                background: 'rgba(248,113,113,0.15)',
-                border: '1px solid rgba(248,113,113,0.3)',
-                borderRadius: '4px',
-                color: '#f87171',
-                padding: '4px 10px',
-                fontSize: '12px',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              Retry
-            </button>
-          )}
-        </div>
-      )}
+      <AnimatePresence>
+        {initialError && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            role="alert"
+            aria-live="assertive"
+            style={{
+              background: 'rgba(248,113,113,0.08)',
+              border: '1px solid rgba(248,113,113,0.3)',
+              borderRadius: '6px',
+              padding: '12px 16px',
+              marginBottom: '20px',
+              color: '#f87171',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '8px',
+            }}
+          >
+            <span aria-hidden>⚠</span>
+            <div style={{ flex: 1 }}>
+              <strong>Diagnosis failed:</strong> {initialError}
+            </div>
+            {onRetry && (
+              <button
+                onClick={onRetry}
+                style={{
+                  background: 'rgba(248,113,113,0.15)',
+                  border: '1px solid rgba(248,113,113,0.3)',
+                  borderRadius: '4px',
+                  color: '#f87171',
+                  padding: '4px 10px',
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                Retry
+              </button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Form */}
       <form onSubmit={handleSubmit} noValidate aria-label="Build failure diagnosis form">
@@ -459,10 +469,12 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
         </div>
 
         {/* Submit */}
-        <button
+        <motion.button
           type="submit"
           disabled={isSubmitting}
           aria-busy={isSubmitting}
+          whileHover={{ scale: isSubmitting ? 1 : 1.01 }}
+          whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
           style={{
             width: '100%',
             padding: '14px 24px',
@@ -474,15 +486,13 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
             fontWeight: 700,
             cursor: isSubmitting ? 'not-allowed' : 'pointer',
             letterSpacing: '-0.01em',
-            transition: 'background 150ms, transform 80ms',
+            transition: 'background 150ms',
             opacity: isSubmitting ? 0.7 : 1,
           }}
-          onMouseDown={e => { if (!isSubmitting) e.currentTarget.style.transform = 'scale(0.99)'; }}
-          onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
         >
           {isSubmitting ? 'Analyzing...' : '⚡ Analyze Failure'}
-        </button>
+        </motion.button>
       </form>
-    </div>
+    </motion.div>
   );
 }
