@@ -1,59 +1,90 @@
 /**
- * BuildDoctorMark — inline SVG brand mark.
- * Represents a terminal window with a diagnostic pulse ending in a checkmark.
+ * BuildDoctorMark — Option 01: The Syntax Pulse.
+ * Dual code brackets (< >) bounding an active diagnostic telemetry pulse.
+ * Supports smooth stroke-dashoffset pulse micro-animation when analyzing.
  */
 
 interface Props {
   className?: string;
   size?: number;
+  isAnalyzing?: boolean;
 }
 
-export default function BuildDoctorMark({ className = '', size = 32 }: Props) {
+export default function BuildDoctorMark({
+  className = '',
+  size = 32,
+  isAnalyzing = false,
+}: Props) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 32 32"
+      viewBox="0 0 256 256"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       aria-hidden="true"
       role="img"
     >
-      {/* Terminal window frame */}
+      <defs>
+        <style>{`
+          @keyframes telemetryPulse {
+            0% {
+              stroke-dashoffset: 0;
+            }
+            100% {
+              stroke-dashoffset: -144;
+            }
+          }
+          .animate-telemetry {
+            stroke-dasharray: 24 48;
+            animation: telemetryPulse 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .animate-telemetry {
+              animation: none !important;
+              stroke-dasharray: none !important;
+            }
+          }
+        `}</style>
+      </defs>
+
+      {/* Container Background */}
       <rect
-        x="1.5"
-        y="4"
-        width="29"
-        height="24"
-        rx="3"
-        stroke="#F59E0B"
-        strokeWidth="1.5"
-        fill="none"
+        width="256"
+        height="256"
+        rx="54"
+        fill="#101118"
+        stroke="rgba(157, 123, 255, 0.2)"
+        strokeWidth="10"
       />
-      {/* Title bar */}
-      <line x1="1.5" y1="9.5" x2="30.5" y2="9.5" stroke="#F59E0B" strokeWidth="1.5" />
-      {/* Traffic dots */}
-      <circle cx="5.5" cy="6.75" r="1" fill="#F59E0B" opacity="0.6" />
-      <circle cx="9" cy="6.75" r="1" fill="#F59E0B" opacity="0.4" />
-      <circle cx="12.5" cy="6.75" r="1" fill="#F59E0B" opacity="0.2" />
-      {/* Diagnostic pulse line — starts flat, rises, dips, rises to check */}
-      <polyline
-        points="3,21 8,21 10,16 12,24 14,19 17,19 19.5,15 22,21 24.5,21"
-        stroke="#22D3EE"
-        strokeWidth="1.5"
+
+      {/* Left Code Bracket */}
+      <path
+        d="M96 64L36 128L96 192"
+        stroke="#9D7BFF"
+        strokeWidth="20"
         strokeLinecap="round"
         strokeLinejoin="round"
-        fill="none"
       />
-      {/* Checkmark at end of pulse */}
-      <polyline
-        points="25.5,19 27.5,21.5 30.5,17"
-        stroke="#34D399"
-        strokeWidth="2"
+
+      {/* Right Code Bracket */}
+      <path
+        d="M160 64L220 128L160 192"
+        stroke="#9D7BFF"
+        strokeWidth="20"
         strokeLinecap="round"
         strokeLinejoin="round"
-        fill="none"
+      />
+
+      {/* Central Diagnostic Waveform Pulse */}
+      <path
+        d="M76 128H104L118 84L138 172L152 128H180"
+        stroke="#B59AFF"
+        strokeWidth="14"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={isAnalyzing ? 'animate-telemetry' : undefined}
       />
     </svg>
   );

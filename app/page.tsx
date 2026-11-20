@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import { Star, Github } from 'lucide-react';
 import BuildDoctorMark from '@/components/BuildDoctorMark';
+import BuildDoctorWordmark from '@/components/BuildDoctorWordmark';
 import DiagnoseForm from '@/components/DiagnoseForm';
 import LoadingState from '@/components/LoadingState';
 import ReportView from '@/components/ReportView';
@@ -166,51 +168,57 @@ export default function HomePage() {
       <header
         role="banner"
         style={{
-          borderBottom: '1px solid #2a2d35',
-          padding: '16px 24px',
+          borderBottom: '1px solid rgba(157, 123, 255, 0.12)',
+          padding: '16px 32px',
           display: 'flex',
           alignItems: 'center',
+          justifyContent: 'space-between',
           gap: '12px',
-          background: '#16181c',
+          background: 'rgba(0, 0, 0, 0.85)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
           flexWrap: 'wrap',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
-          <BuildDoctorMark size={32} />
-          <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-            <span style={{
-              fontSize: '18px',
-              fontWeight: 700,
-              color: '#f59e0b',
-              letterSpacing: '-0.02em',
-              lineHeight: 1.2,
-              fontFamily: 'ui-monospace, Consolas, monospace',
-            }}>
-              BuildDoctor
-            </span>
-            <span style={{ fontSize: '12px', color: '#8b909e', lineHeight: 1.3 }}>
-              Build failure diagnostics
-            </span>
-          </div>
-        </div>
+        <BuildDoctorWordmark size="md" isAnalyzing={isLoading} />
 
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <span style={{
-            fontSize: '11px',
-            color: '#34d399',
-            background: 'rgba(52,211,153,0.08)',
-            border: '1px solid rgba(52,211,153,0.2)',
-            borderRadius: '4px',
-            padding: '3px 8px',
-            whiteSpace: 'nowrap',
-          }}>
-            ⚡ Static analysis — no code execution
-          </span>
-        </div>
+        <a
+          href="https://github.com/AK-Lmn/BuildDoctor"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '7px',
+            fontSize: '12px',
+            fontWeight: 500,
+            color: '#a4a7bd',
+            textDecoration: 'none',
+            background: 'rgba(157, 123, 255, 0.08)',
+            border: '1px solid #433878',
+            borderRadius: '8px',
+            padding: '6px 12px',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.color = '#ffffff';
+            e.currentTarget.style.borderColor = '#9d7bff';
+            e.currentTarget.style.background = 'rgba(157, 123, 255, 0.16)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.color = '#a4a7bd';
+            e.currentTarget.style.borderColor = '#433878';
+            e.currentTarget.style.background = 'rgba(157, 123, 255, 0.08)';
+          }}
+        >
+          <Github size={14} />
+          <span>Star on GitHub</span>
+          <Star size={12} style={{ color: '#fbbf24', fill: '#fbbf24' }} />
+        </a>
       </header>
 
       {/* Main content */}
-      <main id="main-content" role="main" style={{ maxWidth: '900px', margin: '0 auto', padding: '24px 16px', width: '100%', boxSizing: 'border-box' }}>
+      <main id="main-content" role="main" style={{ maxWidth: '980px', margin: '0 auto', padding: '36px 20px', width: '100%', boxSizing: 'border-box' }}>
         {isLoading ? (
           <LoadingState
             stages={LOADING_STAGES}
@@ -239,15 +247,36 @@ export default function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer role="contentinfo" style={{
-        borderTop: '1px solid #2a2d35',
-        padding: '16px 24px',
-        textAlign: 'center',
-        color: '#555a68',
-        fontSize: '12px',
-        marginTop: '48px',
-      }}>
-        BuildDoctor — Diagnostic assistant only. No code is executed. Suggestions must be reviewed.
+      <footer
+        role="contentinfo"
+        style={{
+          borderTop: '1px solid rgba(157, 123, 255, 0.1)',
+          padding: '24px 32px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px 24px',
+          color: '#6b6e82',
+          fontSize: '12px',
+          marginTop: '64px',
+          background: '#000000',
+        }}
+      >
+        <span>
+          BuildDoctor · Built by{' '}
+          <a
+            href="https://github.com/AK-Lmn"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: '#a4a7bd', textDecoration: 'none', transition: 'color 0.15s ease' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#9d7bff')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#a4a7bd')}
+          >
+            AK-Lmn
+          </a>
+        </span>
+        <span>Static analysis only. No code executed.</span>
       </footer>
     </div>
   );

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BuildDoctor — Logo Redesign Phase 6 Concept Sheet (Round 2)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000000;
+      --card-bg: #101118;
+      --border: rgba(157, 123, 255, 0.18);
+      --lilac: #9d7bff;
+      --lilac-dim: #b59aff;
+      --text-1: #ffffff;
+      --text-2: #a4a7bd;
+      --text-3: #6b6e82;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: var(--font-sans);
+      padding: 48px 32px;
+      line-height: 1.5;
+    }
+    .sheet-wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+    .header-block {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: var(--text-2);
+      margin-top: 4px;
+    }
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 12px;
+      background: rgba(157, 123, 255, 0.1);
+      border: 1px solid #433878;
+      border-radius: 9999px;
+      color: var(--lilac);
+    }
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .concept-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      transition: border-color 0.15s;
+    }
+    .concept-card.recommended {
+      border-color: var(--lilac);
+      box-shadow: 0 0 24px rgba(157, 123, 255, 0.15);
+    }
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .concept-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--lilac);
+      background: rgba(157, 123, 255, 0.12);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .rec-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: #000;
+      background: var(--lilac);
+      padding: 2px 8px;
+      border-radius: 9999px;
+    }
+    .mark-display {
+      height: 160px;
+      background: #06070a;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+    }
+    .mark-display svg {
+      width: 100px;
+      height: 100px;
+    }
+    .ladder-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      background: #090a0f;
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .ladder-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .ladder-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-3);
+    }
+    .concept-name {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .concept-desc {
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.55;
+    }
+    .rationale-box {
+      background: rgba(157, 123, 255, 0.05);
+      border-left: 2px solid var(--lilac);
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sheet-wrapper">
+    <!-- Header -->
+    <div class="header-block">
+      <div>
+        <h1 class="title">BuildDoctor // Brand Mark Redesign (Round 2)</h1>
+        <p class="subtitle">Fresh concepts exploring telemetry pulses, compiler syntax brackets, and structural build graphs</p>
+      </div>
+      <span class="badge">REFRESHED CONCEPTS &bull; NON-LITERAL IDENTIFIERS</span>
+    </div>
+
+    <!-- 3 Concepts -->
+    <div class="concept-grid">
+
+      <!-- Concept 1: The Syntax Pulse -->
+      <div class="concept-card recommended">
+        <div class="card-top">
+          <span class="concept-tag">OPTION 01</span>
+          <span class="rec-badge">RECOMMENDED</span>
+        </div>
+
+        <div class="mark-display">
+          <!-- Concept E SVG -->
+          <svg viewBox="0 0 256 256" fill="none">
+            <path d="M96 64L36 128L96 192" stroke="#9D7BFF" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M160 64L220 128L160 192" stroke="#9D7BFF" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M76 128H104L118 84L138 172L152 128H180" stroke="#B59AFF" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <!-- Size Ladder (64px, 32px, 16px) -->
+        <div class="ladder-row">
+          <div class="ladder-item">
+            <svg width="40" height="40" viewBox="0 0 256 256" fill="none">
+              <path d="M96 64L36 128L96 192" stroke="#9D7BFF" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M160 64L220 128L160 192" stroke="#9D7BFF" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M86 128L118 84L138 172L170 128" stroke="#B59AFF" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="ladder-label">64px</span>
+          </div>
+          <div class="ladder-item">
+            <svg width="24" height="24" viewBox="0 0 256 256" fill="none">
+              <path d="M96 64L36 128L96 192" stroke="#9D7BFF" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M160 64L220 128L160 192" stroke="#9D7BFF" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M100 128L118 84L138 172L156 128" stroke="#B59AFF" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="ladder-label">32px</span>
+          </div>
+          <div class="ladder-item">
+            <svg width="16" height="16" viewBox="0 0 256 256" fill="none">
+              <path d="M96 64L36 128L96 192" stroke="#9D7BFF" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M160 64L220 128L160 192" stroke="#9D7BFF" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="ladder-label">16px</span>
+          </div>
+        </div>
+
+        <h3 class="concept-name">The Syntax Pulse</h3>
+        <p class="concept-desc">
+          Dual code brackets (<code>&lt; &gt;</code>) bounding an active vital electrocardiogram heartbeat. Connects compiler syntax directly to health telemetry.
+        </p>
+        <div class="rationale-box">
+          <strong>Distinctive Hybrid:</strong> Instantly signals code + diagnostics without any medical cliché. Perfect 16px bracket legibility.
+        </div>
+      </div>
+
+      <!-- Concept 2: The Suture Clamp (Fracture & Bridge) -->
+      <div class="concept-card">
+        <div class="card-top">
+          <span class="concept-tag">OPTION 02</span>
+        </div>
+
+        <div class="mark-display">
+          <!-- Concept D SVG -->
+          <svg viewBox="0 0 256 256" fill="none">
+            <path d="M128 32L216 88V168L128 224L40 168V88L128 32Z" stroke="#9D7BFF" stroke-width="16" stroke-linejoin="round"/>
+            <path d="M128 32V112" stroke="#B59AFF" stroke-width="14" stroke-linecap="round"/>
+            <rect x="96" y="96" width="64" height="24" rx="6" fill="#B59AFF"/>
+            <circle cx="112" cy="108" r="4" fill="#000000"/>
+            <circle cx="144" cy="108" r="4" fill="#000000"/>
+            <path d="M128 120V224" stroke="#9D7BFF" stroke-width="14" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <!-- Size Ladder -->
+        <div class="ladder-row">
+          <div class="ladder-item">
+            <svg width="40" height="40" viewBox="0 0 256 256" fill="none">
+              <path d="M128 32L216 88V168L128 224L40 168V88L128 32Z" stroke="#9D7BFF" stroke-width="20" stroke-linejoin="round"/>
+              <rect x="96" y="100" width="64" height="28" rx="8" fill="#B59AFF"/>
+            </svg>
+            <span class="ladder-label">64px</span>
+          </div>
+          <div class="ladder-item">
+            <svg width="24" height="24" viewBox="0 0 256 256" fill="none">
+              <path d="M128 32L216 88V168L128 224L40 168V88L128 32Z" stroke="#9D7BFF" stroke-width="24" stroke-linejoin="round"/>
+              <rect x="96" y="100" width="64" height="32" rx="8" fill="#B59AFF"/>
+            </svg>
+            <span class="ladder-label">32px</span>
+          </div>
+          <div class="ladder-item">
+            <svg width="16" height="16" viewBox="0 0 256 256" fill="none">
+              <path d="M128 32L216 88V168L128 224L40 168V88L128 32Z" stroke="#9D7BFF" stroke-width="32" stroke-linejoin="round"/>
+            </svg>
+            <span class="ladder-label">16px</span>
+          </div>
+        </div>
+
+        <h3 class="concept-name">The Patch Clamp</h3>
+        <p class="concept-desc">
+          An engineering hexagonal prism broken by a build fracture line, held together and healed by a mechanical patch clamp.
+        </p>
+        <div class="rationale-box">
+          <strong>Clever Metaphor:</strong> Visually symbolizes applying a diff patch to fix broken software.
+        </div>
+      </div>
+
+      <!-- Concept 3: The AST Resolution Tree -->
+      <div class="concept-card">
+        <div class="card-top">
+          <span class="concept-tag">OPTION 03</span>
+        </div>
+
+        <div class="mark-display">
+          <!-- Concept F SVG -->
+          <svg viewBox="0 0 256 256" fill="none">
+            <circle cx="128" cy="44" r="20" stroke="#9D7BFF" stroke-width="12" fill="#000000"/>
+            <circle cx="60" cy="144" r="20" stroke="#9D7BFF" stroke-width="12" fill="#000000"/>
+            <circle cx="196" cy="144" r="20" stroke="#9D7BFF" stroke-width="12" fill="#000000"/>
+            <line x1="114" y1="58" x2="74" y2="130" stroke="#9D7BFF" stroke-width="12" stroke-linecap="round"/>
+            <line x1="142" y1="58" x2="182" y2="130" stroke="#9D7BFF" stroke-width="12" stroke-linecap="round"/>
+            <line x1="74" y1="158" x2="114" y2="194" stroke="#9D7BFF" stroke-width="12" stroke-linecap="round"/>
+            <line x1="182" y1="158" x2="142" y2="194" stroke="#9D7BFF" stroke-width="12" stroke-linecap="round"/>
+            <circle cx="128" cy="208" r="22" fill="#B59AFF"/>
+            <circle cx="128" cy="208" r="7" fill="#000000"/>
+          </svg>
+        </div>
+
+        <!-- Size Ladder -->
+        <div class="ladder-row">
+          <div class="ladder-item">
+            <svg width="40" height="40" viewBox="0 0 256 256" fill="none">
+              <circle cx="128" cy="44" r="22" fill="#9D7BFF"/>
+              <circle cx="60" cy="144" r="22" fill="#9D7BFF"/>
+              <circle cx="196" cy="144" r="22" fill="#9D7BFF"/>
+              <circle cx="128" cy="208" r="26" fill="#B59AFF"/>
+              <line x1="114" y1="58" x2="74" y2="130" stroke="#9D7BFF" stroke-width="16"/>
+              <line x1="142" y1="58" x2="182" y2="130" stroke="#9D7BFF" stroke-width="16"/>
+            </svg>
+            <span class="ladder-label">64px</span>
+          </div>
+          <div class="ladder-item">
+            <svg width="24" height="24" viewBox="0 0 256 256" fill="none">
+              <circle cx="128" cy="44" r="26" fill="#9D7BFF"/>
+              <circle cx="60" cy="144" r="26" fill="#9D7BFF"/>
+              <circle cx="196" cy="144" r="26" fill="#9D7BFF"/>
+              <circle cx="128" cy="208" r="30" fill="#B59AFF"/>
+            </svg>
+            <span class="ladder-label">32px</span>
+          </div>
+          <div class="ladder-item">
+            <svg width="16" height="16" viewBox="0 0 256 256" fill="none">
+              <circle cx="128" cy="128" r="54" fill="#B59AFF"/>
+            </svg>
+            <span class="ladder-label">16px</span>
+          </div>
+        </div>
+
+        <h3 class="concept-name">The AST Resolution Node</h3>
+        <p class="concept-desc">
+          Abstract Syntax Tree / Dependency Graph diamond that traces through child package nodes to pinpoint the root resolution anchor.
+        </p>
+        <div class="rationale-box">
+          <strong>Compiler Purity:</strong> Represents static analysis AST evaluation. Feels deeply authentic to developers.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

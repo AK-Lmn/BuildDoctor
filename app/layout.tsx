@@ -15,15 +15,23 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'BuildDoctor — Turn build failures into a fix plan',
+  title: 'BuildDoctor',
   description: 'BuildDoctor inspects your repository, analyzes build logs, and produces an evidence-backed repair plan. Static analysis — no code execution.',
   applicationName: 'BuildDoctor',
   keywords: ['build failure', 'diagnostics', 'Next.js', 'TypeScript', 'npm', 'CI/CD', 'Vercel', 'Netlify'],
   authors: [{ name: 'BuildDoctor' }],
   creator: 'BuildDoctor',
   robots: 'index, follow',
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
   openGraph: {
-    title: 'BuildDoctor — Turn build failures into a fix plan',
+    title: 'BuildDoctor',
     description: 'Analyze build failures in JavaScript and TypeScript projects. Evidence-backed repair plans.',
     type: 'website',
     locale: 'en_US',
@@ -36,7 +44,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#f59e0b',
+  themeColor: '#9d7bff',
   width: 'device-width',
   initialScale: 1,
   colorScheme: 'dark',

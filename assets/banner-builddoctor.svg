@@ -1,0 +1,207 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="1200" height="420" fill="none">
+  <defs>
+    <!-- Background Gradients -->
+    <radialGradient id="banner-ambient" cx="600" cy="0" r="800" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#433878" stop-opacity="0.25"/>
+      <stop offset="60%" stop-color="#101118" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="1"/>
+    </radialGradient>
+    <radialGradient id="mark-glow" cx="140" cy="210" r="160" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#9d7bff" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#9d7bff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="primary-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#b59aff"/>
+      <stop offset="100%" stop-color="#9d7bff"/>
+    </linearGradient>
+    <linearGradient id="card-border" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#9d7bff" stop-opacity="0.35"/>
+      <stop offset="50%" stop-color="#433878" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#9d7bff" stop-opacity="0.1"/>
+    </linearGradient>
+
+    <!-- Syntax Pulse Animation -->
+    <style>
+      @keyframes telemetryBannerPulse {
+        0%, 100% {
+          stroke-dashoffset: 0;
+          opacity: 0.85;
+        }
+        50% {
+          stroke-dashoffset: 40;
+          opacity: 1;
+        }
+      }
+      .telemetry-pulse {
+        stroke-dasharray: 140;
+        animation: telemetryBannerPulse 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .telemetry-pulse {
+          animation: none !important;
+          stroke-dasharray: none !important;
+        }
+      }
+      .font-sans {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      }
+      .font-mono {
+        font-family: "JetBrains Mono", "SF Mono", Consolas, Menlo, Monaco, monospace;
+      }
+    </style>
+  </defs>
+
+  <!-- Background Base Canvas -->
+  <rect width="1200" height="420" fill="#000000"/>
+  <rect width="1200" height="420" fill="url(#banner-ambient)"/>
+
+  <!-- Subtle Precision Grid Pattern -->
+  <g opacity="0.12" stroke="#9d7bff" stroke-width="0.75" stroke-dasharray="3 3">
+    <line x1="0" y1="70" x2="1200" y2="70" />
+    <line x1="0" y1="140" x2="1200" y2="140" />
+    <line x1="0" y1="210" x2="1200" y2="210" />
+    <line x1="0" y1="280" x2="1200" y2="280" />
+    <line x1="0" y1="350" x2="1200" y2="350" />
+    <line x1="120" y1="0" x2="120" y2="420" />
+    <line x1="300" y1="0" x2="300" y2="420" />
+    <line x1="600" y1="0" x2="600" y2="420" />
+    <line x1="900" y1="0" x2="900" y2="420" />
+    <line x1="1080" y1="0" x2="1080" y2="420" />
+  </g>
+
+  <!-- Outer Bounding Technical Card Frame -->
+  <rect x="24" y="24" width="1152" height="372" rx="16" fill="#101118" fill-opacity="0.45" stroke="url(#card-border)" stroke-width="1.25"/>
+
+  <!-- Terminal Header / Telemetry Metabar -->
+  <g id="telemetry-bar">
+    <circle cx="56" cy="54" r="5" fill="#f87171" fill-opacity="0.8" />
+    <circle cx="74" cy="54" r="5" fill="#fbbf24" fill-opacity="0.8" />
+    <circle cx="92" cy="54" r="5" fill="#34d399" fill-opacity="0.8" />
+    
+    <text x="120" y="58" class="font-mono" font-size="11" font-weight="600" fill="#a4a7bd" letter-spacing="0.1em">BUILDDOCTOR // DETERMINISTIC STATIC DIAGNOSTIC SYSTEM</text>
+    <text x="1144" y="58" text-anchor="end" class="font-mono" font-size="11" fill="#717696" letter-spacing="0.05em">v1.0.0-PROD</text>
+    <line x1="24" y1="78" x2="1176" y2="78" stroke="rgba(157, 123, 255, 0.15)" stroke-width="1"/>
+  </g>
+
+  <!-- LEFT: Syntax Pulse Brand Mark (Scaled to 140x140 at center cx=140, cy=235) -->
+  <g id="brand-mark-section">
+    <!-- Ambient back-glow -->
+    <circle cx="150" cy="235" r="90" fill="url(#mark-glow)"/>
+
+    <!-- Mark Container (Scaled from 64x64 at (70, 155)) -->
+    <g transform="translate(70, 155) scale(2.5)">
+      <!-- Diagnostic Aperture Box -->
+      <rect x="2" y="2" width="60" height="60" rx="14" fill="#101118" stroke="#433878" stroke-width="1.5" />
+      
+      <!-- Precision Target Reticle Dots -->
+      <circle cx="32" cy="6" r="1.25" fill="#9d7bff" opacity="0.6" />
+      <circle cx="32" cy="58" r="1.25" fill="#9d7bff" opacity="0.6" />
+      <circle cx="6" cy="32" r="1.25" fill="#9d7bff" opacity="0.6" />
+      <circle cx="58" cy="32" r="1.25" fill="#9d7bff" opacity="0.6" />
+
+      <!-- Left Opening Angle Bracket '<' -->
+      <path d="M 22 18 L 13 32 L 22 46" fill="none" stroke="url(#primary-grad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+
+      <!-- Right Closing Angle Bracket '>' -->
+      <path d="M 42 18 L 51 32 L 42 46" fill="none" stroke="url(#primary-grad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+
+      <!-- Central Technical ECG Pulse -->
+      <path class="telemetry-pulse" d="M 23 32 L 27 32 L 29 22 L 32 42 L 35 27 L 37 34 L 41 32" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+
+      <!-- Central Diagnosis Focus Node -->
+      <circle cx="32" cy="32" r="2.2" fill="#b59aff" />
+      <circle cx="32" cy="32" r="4.5" fill="none" stroke="#9d7bff" stroke-width="0.75" opacity="0.5" />
+    </g>
+  </g>
+
+  <!-- CENTER: Wordmark, Tagline & Architecture Flow -->
+  <g id="brand-core" transform="translate(260, 0)">
+    <!-- Identity Wordmark -->
+    <text x="0" y="160" class="font-sans" font-size="46" font-weight="800" fill="#ffffff" letter-spacing="-0.03em">Build<tspan fill="url(#primary-grad)">Doctor</tspan></text>
+    
+    <!-- Verified Engine Tag -->
+    <g transform="translate(270, 126)">
+      <rect width="112" height="22" rx="6" fill="#181528" stroke="#433878" stroke-width="1" />
+      <circle cx="10" cy="11" r="3.5" fill="#34d399" />
+      <text x="20" y="15" class="font-mono" font-size="9.5" font-weight="700" fill="#b59aff" letter-spacing="0.08em">STATIC ENGINE</text>
+    </g>
+
+    <!-- Subheadline -->
+    <text x="0" y="196" class="font-sans" font-size="18" font-weight="500" fill="#a4a7bd" letter-spacing="-0.01em">
+      Automated build failure diagnosis and verified repair plan generator for JavaScript and TypeScript.
+    </text>
+
+    <!-- Deterministic Diagnostic Pipeline (Flow Diagram) -->
+    <g id="pipeline-flow" transform="translate(0, 235)">
+      <!-- Stage 1: Ingest -->
+      <rect x="0" y="0" width="168" height="58" rx="8" fill="#13141f" stroke="#433878" stroke-width="1.25"/>
+      <text x="14" y="24" class="font-mono" font-size="10" font-weight="600" fill="#717696" letter-spacing="0.05em">INPUT TELEMETRY</text>
+      <text x="14" y="44" class="font-sans" font-size="13" font-weight="600" fill="#ffffff">Repo + Build Log</text>
+
+      <!-- Connection Vector 1 -->
+      <path d="M 178 29 L 204 29" stroke="#9d7bff" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <polygon points="204,26 210,29 204,32" fill="#9d7bff"/>
+
+      <!-- Stage 2: AST & Deterministic Rules -->
+      <rect x="220" y="0" width="194" height="58" rx="8" fill="#181528" stroke="#9d7bff" stroke-width="1.5"/>
+      <text x="234" y="24" class="font-mono" font-size="10" font-weight="700" fill="#b59aff" letter-spacing="0.05em">ANALYSIS ENGINE</text>
+      <text x="234" y="44" class="font-sans" font-size="13" font-weight="600" fill="#ffffff">AST &amp; Rule Matching</text>
+
+      <!-- Connection Vector 2 -->
+      <path d="M 424 29 L 450 29" stroke="#9d7bff" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <polygon points="450,26 456,29 450,32" fill="#9d7bff"/>
+
+      <!-- Stage 3: Fix Plan & Patch -->
+      <rect x="466" y="0" width="180" height="58" rx="8" fill="#13141f" stroke="#433878" stroke-width="1.25"/>
+      <text x="480" y="24" class="font-mono" font-size="10" font-weight="600" fill="#34d399" letter-spacing="0.05em">RESOLVED OUTPUT</text>
+      <text x="480" y="44" class="font-sans" font-size="13" font-weight="600" fill="#ffffff">Fix Plan + Git Patch</text>
+    </g>
+
+    <!-- Technical Badges Row -->
+    <g id="technical-badges" transform="translate(0, 318)">
+      <!-- Badge 1: Zero Code Execution -->
+      <g>
+        <rect width="160" height="26" rx="6" fill="#101118" stroke="#433878" stroke-width="1"/>
+        <text x="80" y="17" text-anchor="middle" class="font-mono" font-size="10.5" font-weight="600" fill="#b59aff">Zero Code Execution</text>
+      </g>
+      <!-- Badge 2: TypeScript & Next.js -->
+      <g transform="translate(172, 0)">
+        <rect width="168" height="26" rx="6" fill="#101118" stroke="#433878" stroke-width="1"/>
+        <text x="84" y="17" text-anchor="middle" class="font-mono" font-size="10.5" font-weight="600" fill="#a4a7bd">Next.js 16 • TypeScript</text>
+      </g>
+      <!-- Badge 3: 139 Deterministic Tests -->
+      <g transform="translate(352, 0)">
+        <rect width="156" height="26" rx="6" fill="#101118" stroke="#433878" stroke-width="1"/>
+        <text x="78" y="17" text-anchor="middle" class="font-mono" font-size="10.5" font-weight="600" fill="#a4a7bd">139 Passing Tests</text>
+      </g>
+      <!-- Badge 4: WCAG AAA Verified -->
+      <g transform="translate(520, 0)">
+        <rect width="138" height="26" rx="6" fill="#101118" stroke="#433878" stroke-width="1"/>
+        <text x="69" y="17" text-anchor="middle" class="font-mono" font-size="10.5" font-weight="600" fill="#a4a7bd">WCAG AAA Rated</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- RIGHT: Telemetry Stats Terminal Column -->
+  <g id="telemetry-readout" transform="translate(945, 120)">
+    <rect width="195" height="224" rx="10" fill="#0b0c12" stroke="#433878" stroke-width="1"/>
+    
+    <text x="16" y="28" class="font-mono" font-size="10" font-weight="700" fill="#9d7bff" letter-spacing="0.1em">SYSTEM TELEMETRY</text>
+    <line x1="16" y1="38" x2="179" y2="38" stroke="rgba(157, 123, 255, 0.15)" stroke-width="1"/>
+
+    <text x="16" y="62" class="font-mono" font-size="9.5" fill="#717696">STATUS</text>
+    <text x="179" y="62" text-anchor="end" class="font-mono" font-size="10" font-weight="700" fill="#34d399">READY</text>
+
+    <text x="16" y="94" class="font-mono" font-size="9.5" fill="#717696">ANALYSIS LATENCY</text>
+    <text x="179" y="94" text-anchor="end" class="font-mono" font-size="10" font-weight="700" fill="#ffffff">&lt; 150ms</text>
+
+    <text x="16" y="126" class="font-mono" font-size="9.5" fill="#717696">PARSER SAFETY</text>
+    <text x="179" y="126" text-anchor="end" class="font-mono" font-size="10" font-weight="700" fill="#b59aff">SANDBOXED</text>
+
+    <text x="16" y="158" class="font-mono" font-size="9.5" fill="#717696">RULE BASE</text>
+    <text x="179" y="158" text-anchor="end" class="font-mono" font-size="10" font-weight="700" fill="#ffffff">DETERMINISTIC</text>
+
+    <text x="16" y="190" class="font-mono" font-size="9.5" fill="#717696">CODE LEAK RISK</text>
+    <text x="179" y="190" text-anchor="end" class="font-mono" font-size="10" font-weight="700" fill="#34d399">ZERO (0%)</text>
+  </g>
+</svg>

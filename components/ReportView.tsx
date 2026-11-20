@@ -2,6 +2,21 @@
 
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  CheckCircle2,
+  AlertCircle,
+  HelpCircle,
+  Sparkles,
+  Copy,
+  Check,
+  Download,
+  Terminal,
+  FileText,
+  ChevronDown,
+  Layers,
+  Wrench,
+  ExternalLink
+} from 'lucide-react';
 import type { DiagnoseResponse, DiagnoseInput, ReportFilter } from '@/lib/types';
 import { generateMarkdownReport } from '@/lib/export';
 
@@ -47,10 +62,11 @@ function Badge({ label, color }: { label: string; color: string }) {
 function Card({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
     <div style={{
-      background: 'var(--bd-bg-surface, #16181c)',
-      border: '1px solid var(--bd-border, #2a2d35)',
-      borderRadius: '8px',
-      padding: '20px',
+      background: '#101118',
+      border: '1px solid rgba(157, 123, 255, 0.16)',
+      borderRadius: '16px',
+      padding: '24px',
+      boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
       ...style,
     }}>
       {children}
@@ -61,12 +77,13 @@ function Card({ children, style }: { children: React.ReactNode; style?: React.CS
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <h2 style={{
-      fontSize: '14px',
-      fontWeight: 600,
-      color: '#8b909e',
+      fontSize: '13px',
+      fontWeight: 700,
+      color: '#9d7bff',
       textTransform: 'uppercase',
       letterSpacing: '0.08em',
-      margin: '0 0 12px 0',
+      margin: '0 0 16px 0',
+      fontFamily: 'ui-monospace, Consolas, monospace',
     }}>
       {children}
     </h2>
@@ -163,36 +180,50 @@ export default function ReportView({ input, result, onNewDiagnosis, onAnalyzeAga
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         style={{
-          background: report.status === 'diagnosed' ? 'rgba(52,211,153,0.08)' : 'rgba(245,158,11,0.08)',
-          border: `1px solid ${report.status === 'diagnosed' ? 'rgba(52,211,153,0.3)' : 'rgba(245,158,11,0.3)'}`,
-          borderRadius: '8px',
-          padding: '12px 16px',
-          marginBottom: '16px',
+          background: report.status === 'diagnosed' ? 'rgba(85,230,165,0.08)' : 'rgba(245,158,11,0.08)',
+          border: `1px solid ${report.status === 'diagnosed' ? 'rgba(85,230,165,0.3)' : 'rgba(245,158,11,0.3)'}`,
+          borderRadius: '12px',
+          padding: '14px 18px',
+          marginBottom: '20px',
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
+          gap: '12px',
           flexWrap: 'wrap',
         }}
       >
-        <span style={{ fontSize: '18px' }}>
-          {report.status === 'diagnosed' ? '✓' : report.status === 'partial' ? '◑' : '?'}
+        <span style={{ display: 'flex', alignItems: 'center' }}>
+          {report.status === 'diagnosed' ? (
+            <CheckCircle2 size={18} style={{ color: '#55e6a5' }} />
+          ) : report.status === 'partial' ? (
+            <AlertCircle size={18} style={{ color: '#fbbf24' }} />
+          ) : (
+            <HelpCircle size={18} style={{ color: '#a4a7bd' }} />
+          )}
         </span>
         <div style={{ flex: 1, minWidth: 0 }}>
           <span style={{
             fontWeight: 600,
-            color: report.status === 'diagnosed' ? '#34d399' : '#f59e0b',
+            color: report.status === 'diagnosed' ? '#55e6a5' : '#fbbf24',
             fontSize: '14px',
           }}>
             {report.status === 'diagnosed' ? 'Diagnosis complete' :
               report.status === 'partial' ? 'Partial diagnosis' : 'Insufficient evidence'}
           </span>
           {aiUsed && (
-            <span style={{ marginLeft: '8px', fontSize: '12px', color: '#22d3ee' }}>
-              + AI analysis (Gemini)
+            <span style={{
+              marginLeft: '10px',
+              fontSize: '12px',
+              color: '#9d7bff',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}>
+              <Sparkles size={12} />
+              <span>AI analysis (Gemini)</span>
             </span>
           )}
         </div>
-        <span style={{ fontSize: '12px', color: '#555a68' }}>{processingMs}ms</span>
+        <span style={{ fontSize: '12px', color: '#6b6e82', fontFamily: 'ui-monospace, Consolas, monospace' }}>{processingMs}ms</span>
       </motion.div>
 
       {/* Primary Diagnosis */}
@@ -263,8 +294,10 @@ export default function ReportView({ input, result, onNewDiagnosis, onAnalyzeAga
       {/* Filters */}
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
         {filterButtons.map(fb => (
-          <button
+          <motion.button
             key={fb.value}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
             onClick={() => setFilter(fb.value)}
             aria-pressed={filter === fb.value}
             style={{
@@ -275,15 +308,16 @@ export default function ReportView({ input, result, onNewDiagnosis, onAnalyzeAga
               alignItems: 'center',
               justifyContent: 'center',
               borderRadius: '6px',
-              border: `1px solid ${filter === fb.value ? '#f59e0b' : '#2a2d35'}`,
-              background: filter === fb.value ? 'rgba(245,158,11,0.12)' : 'transparent',
-              color: filter === fb.value ? '#f59e0b' : '#8b909e',
+              border: `1px solid ${filter === fb.value ? '#9d7bff' : 'rgba(157, 123, 255, 0.16)'}`,
+              background: filter === fb.value ? 'rgba(157, 123, 255, 0.16)' : 'transparent',
+              color: filter === fb.value ? '#ffffff' : '#a4a7bd',
               cursor: 'pointer',
               whiteSpace: 'nowrap',
+              transition: 'background 150ms ease, border-color 150ms ease, color 150ms ease',
             }}
           >
             {fb.label}
-          </button>
+          </motion.button>
         ))}
       </div>
 

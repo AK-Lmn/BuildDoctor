@@ -1,28 +1,48 @@
 @import "tailwindcss";
 
 :root {
-  --bd-bg: #0f0f11;
-  --bd-bg-surface: #16181c;
-  --bd-bg-elevated: #1e2028;
-  --bd-border: #2a2d35;
-  --bd-border-subtle: #1e2028;
-  --bd-text-primary: #e8eaf0;
-  --bd-text-secondary: #8b909e;
-  --bd-text-muted: #8c92a4;
+  /* Pitch-black canvas base with midnight purple undertone surfaces */
+  --bd-bg: #000000;
+  --bd-bg-surface: #101118;
+  --bd-bg-elevated: #171824;
+  --bd-bg-overlay: #1e1f30;
+
+  /* Borders */
+  --bd-border: rgba(157, 123, 255, 0.16);
+  --bd-border-subtle: rgba(157, 123, 255, 0.08);
+  --bd-border-prominent: rgba(157, 123, 255, 0.32);
+
+  /* Typography (WCAG AAA Compliant on pitch black) */
+  --bd-text-primary: #ffffff;
+  --bd-text-secondary: #a4a7bd;
+  --bd-text-muted: #6b6e82;
+
+  /* Signature Lilac / Lavender */
+  --bd-lilac: #9d7bff;
+  --bd-lilac-hover: #b59aff;
+  --bd-lilac-dim: #7054c4;
+  --bd-lilac-subtle: rgba(157, 123, 255, 0.12);
+  --bd-lilac-border: #433878;
+
+  /* Diagnostic Accents (Preserved & Harmonized) */
   --bd-amber: #f59e0b;
   --bd-amber-dim: #92400e;
-  --bd-amber-subtle: #1c1408;
-  --bd-cyan: #22d3ee;
-  --bd-cyan-dim: #0e7490;
-  --bd-cyan-subtle: #071820;
-  --bd-red: #f87171;
+  --bd-amber-subtle: rgba(245, 158, 11, 0.12);
+
+  --bd-cyan: #9d7bff; /* mapped to lilac accent */
+  --bd-cyan-dim: #7054c4;
+  --bd-cyan-subtle: rgba(157, 123, 255, 0.12);
+
+  --bd-red: #ff6b81;
   --bd-red-dim: #991b1b;
-  --bd-red-subtle: #1a0a0a;
-  --bd-green: #34d399;
+  --bd-red-subtle: rgba(255, 107, 129, 0.12);
+
+  --bd-green: #55e6a5;
   --bd-green-dim: #065f46;
-  --bd-green-subtle: #061612;
+  --bd-green-subtle: rgba(85, 230, 165, 0.12);
+
   --bd-yellow: #fbbf24;
-  --bd-slate: #334155;
+  --bd-slate: #232533;
 }
 
 @theme inline {
@@ -61,18 +81,18 @@ body {
   background: var(--bd-bg-surface);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--bd-border);
+  background: rgba(157, 123, 255, 0.2);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--bd-text-muted);
+  background: var(--bd-lilac);
 }
 
-/* Focus rings */
+/* Focus rings (Lilac accessible ring) */
 :focus-visible {
-  outline: 2px solid var(--bd-amber);
+  outline: 2px solid var(--bd-lilac);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 /* Transitions */
@@ -108,10 +128,10 @@ code, pre {
   font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', Consolas, monospace;
 }
 
-/* Animations */
-@keyframes pulse-amber {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+/* Animations & Micro-Interactions */
+@keyframes pulse-lilac {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.96); }
 }
 
 @keyframes spin-slow {
@@ -120,7 +140,7 @@ code, pre {
 }
 
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(4px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -129,16 +149,49 @@ code, pre {
   to { opacity: 1; transform: translateX(0); }
 }
 
-.animate-pulse-amber {
-  animation: pulse-amber 2s ease-in-out infinite;
+@keyframes telemetryShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes radarScan {
+  0% { transform: translateY(-100%); opacity: 0; }
+  50% { opacity: 0.6; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+
+@keyframes subtleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.animate-pulse-lilac {
+  animation: pulse-lilac 2s ease-in-out infinite;
 }
 
 .animate-fade-in {
-  animation: fade-in 0.2s ease-out;
+  animation: fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .animate-slide-in {
-  animation: slide-in 0.2s ease-out;
+  animation: slide-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-float {
+  animation: subtleFloat 3s ease-in-out infinite;
+}
+
+/* Diagnostic Active Radar Scan on Code & Panels */
+.radar-scan-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #9d7bff, #b59aff, transparent);
+  box-shadow: 0 0 12px #9d7bff;
+  animation: radarScan 2.4s ease-in-out infinite;
+  pointer-events: none;
 }
 
 @keyframes spin {
@@ -150,7 +203,10 @@ code, pre {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-spin-fast {
+  .animate-spin-fast,
+  .animate-pulse-lilac,
+  .animate-float,
+  .radar-scan-overlay {
     animation: none !important;
   }
 }

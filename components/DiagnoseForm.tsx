@@ -2,6 +2,16 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  GitBranch,
+  FileCode,
+  Upload,
+  Play,
+  AlertTriangle,
+  RotateCcw,
+  Sparkles,
+  Info
+} from 'lucide-react';
 import type { DiagnoseInput, Platform } from '@/lib/types';
 import { LIMITS, PLATFORMS, ALLOWED_UPLOAD_EXTENSIONS } from '@/lib/config';
 
@@ -57,23 +67,23 @@ const EXAMPLES = [
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
-  background: 'var(--bd-bg-surface, #16181c)',
-  border: '1px solid var(--bd-border, #2a2d35)',
-  borderRadius: '6px',
-  padding: '10px 12px',
-  color: 'var(--bd-text-primary, #e8eaf0)',
+  background: '#06070a',
+  border: '1.5px solid rgba(157, 123, 255, 0.16)',
+  borderRadius: '10px',
+  padding: '12px 14px',
+  color: '#ffffff',
   fontSize: '14px',
   fontFamily: 'inherit',
   outline: 'none',
   boxSizing: 'border-box',
-  transition: 'border-color 150ms',
+  transition: 'border-color 150ms, box-shadow 150ms',
 };
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
   fontSize: '13px',
-  fontWeight: 500,
-  color: 'var(--bd-text-secondary, #8b909e)',
+  fontWeight: 600,
+  color: '#ffffff',
   marginBottom: '6px',
 };
 
@@ -168,17 +178,17 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
       {/* Hero */}
       <div style={{ marginBottom: '32px', paddingTop: '8px' }}>
         <h1 style={{
-          fontSize: 'clamp(24px, 5vw, 36px)',
+          fontSize: 'clamp(26px, 5vw, 38px)',
           fontWeight: 800,
-          color: '#f59e0b',
+          color: '#ffffff',
           letterSpacing: '-0.03em',
           margin: '0 0 10px 0',
           lineHeight: 1.2,
         }}>
-          Turn build failures into a fix plan.
+          Turn build failures into a <span style={{ color: '#9d7bff' }}>fix plan</span>.
         </h1>
-        <p style={{ color: 'var(--bd-text-secondary, #8b909e)', fontSize: '15px', margin: 0, maxWidth: '600px', lineHeight: 1.6 }}>
-          Provide a public GitHub repository and/or build log. BuildDoctor analyzes configuration files, detects error patterns, and produces an evidence-backed repair plan.
+        <p style={{ color: '#a4a7bd', fontSize: '15px', margin: 0, maxWidth: '640px', lineHeight: 1.6 }}>
+          Add a public GitHub repo or paste a build log to find where it failed and get a fix.
         </p>
       </div>
 
@@ -192,19 +202,19 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
             role="alert"
             aria-live="assertive"
             style={{
-              background: 'rgba(248,113,113,0.08)',
-              border: '1px solid rgba(248,113,113,0.3)',
-              borderRadius: '6px',
-              padding: '12px 16px',
+              background: 'rgba(255,107,129,0.1)',
+              border: '1px solid rgba(255,107,129,0.3)',
+              borderRadius: '10px',
+              padding: '14px 18px',
               marginBottom: '20px',
-              color: '#f87171',
+              color: '#ff6b81',
               fontSize: '14px',
               display: 'flex',
-              alignItems: 'flex-start',
-              gap: '8px',
+              alignItems: 'center',
+              gap: '10px',
             }}
           >
-            <span aria-hidden>⚠</span>
+            <AlertTriangle size={18} style={{ flexShrink: 0, color: '#ff6b81' }} />
             <div style={{ flex: 1 }}>
               <strong>Diagnosis failed:</strong> {initialError}
             </div>
@@ -212,17 +222,22 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
               <button
                 onClick={onRetry}
                 style={{
-                  background: 'rgba(248,113,113,0.15)',
-                  border: '1px solid rgba(248,113,113,0.3)',
-                  borderRadius: '4px',
-                  color: '#f87171',
-                  padding: '4px 10px',
+                  background: 'rgba(255,107,129,0.15)',
+                  border: '1px solid rgba(255,107,129,0.3)',
+                  borderRadius: '6px',
+                  color: '#ff6b81',
+                  padding: '6px 12px',
                   fontSize: '12px',
+                  fontWeight: 600,
                   cursor: 'pointer',
                   whiteSpace: 'nowrap',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
                 }}
               >
-                Retry
+                <RotateCcw size={13} />
+                <span>Retry</span>
               </button>
             )}
           </motion.div>
@@ -232,13 +247,14 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
       {/* Form */}
       <form onSubmit={handleSubmit} noValidate aria-label="Build failure diagnosis form">
         <div style={{
-          background: '#16181c',
-          border: '1px solid #2a2d35',
-          borderRadius: '8px',
-          padding: '24px',
+          background: '#101118',
+          border: '1px solid rgba(157, 123, 255, 0.16)',
+          borderRadius: '16px',
+          padding: '28px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '20px',
+          gap: '24px',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
         }}>
           {/* Repository URL */}
           <div>
@@ -259,10 +275,16 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
               aria-invalid={!!validationErrors.repositoryUrl}
               style={{
                 ...inputStyle,
-                borderColor: validationErrors.repositoryUrl ? '#f87171' : '#2a2d35',
+                borderColor: validationErrors.repositoryUrl ? '#ff6b81' : 'rgba(157, 123, 255, 0.16)',
               }}
-              onFocus={e => { e.currentTarget.style.borderColor = '#f59e0b'; }}
-              onBlur={e => { e.currentTarget.style.borderColor = validationErrors.repositoryUrl ? '#f87171' : '#2a2d35'; }}
+              onFocus={e => {
+                e.currentTarget.style.borderColor = '#9d7bff';
+                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(157, 123, 255, 0.2)';
+              }}
+              onBlur={e => {
+                e.currentTarget.style.borderColor = validationErrors.repositoryUrl ? '#ff6b81' : 'rgba(157, 123, 255, 0.16)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             />
             <p id="repo-url-desc" style={{ fontSize: '12px', color: '#555a68', margin: '4px 0 0 0' }}>
               Only public repositories are supported. No private repos or GitHub Enterprise.
@@ -277,8 +299,8 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
           {/* Git Ref */}
           <div>
             <label htmlFor="git-ref" style={labelStyle}>
-              Branch / Tag / Commit
-              <span style={{ color: '#555a68', fontWeight: 400, marginLeft: '6px' }}>— optional, defaults to main branch</span>
+              Branch, Tag, or Commit
+              <span style={{ color: '#a4a7bd', fontWeight: 400, marginLeft: '6px' }}>— optional</span>
             </label>
             <input
               id="git-ref"
@@ -289,15 +311,21 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
               maxLength={LIMITS.GIT_REF_MAX_CHARS}
               spellCheck={false}
               style={inputStyle}
-              onFocus={e => { e.currentTarget.style.borderColor = '#f59e0b'; }}
-              onBlur={e => { e.currentTarget.style.borderColor = '#2a2d35'; }}
+              onFocus={e => {
+                e.currentTarget.style.borderColor = '#9d7bff';
+                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(157, 123, 255, 0.2)';
+              }}
+              onBlur={e => {
+                e.currentTarget.style.borderColor = 'rgba(157, 123, 255, 0.16)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             />
           </div>
 
           {/* Platform */}
           <div>
             <label htmlFor="platform" style={labelStyle}>
-              Deployment Platform <span style={{ color: '#f87171' }} aria-hidden>*</span>
+              Deployment Platform <span style={{ color: '#ff6b81' }} aria-hidden>*</span>
             </label>
             <select
               id="platform"
@@ -307,28 +335,38 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
                 ...inputStyle,
                 cursor: 'pointer',
                 appearance: 'none',
-                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b909e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`,
+                WebkitAppearance: 'none',
+                MozAppearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239d7bff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`,
                 backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 12px center',
-                paddingRight: '36px',
+                backgroundPosition: 'right 14px center',
+                paddingRight: '40px',
+              }}
+              onFocus={e => {
+                e.currentTarget.style.borderColor = '#9d7bff';
+                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(157, 123, 255, 0.2)';
+              }}
+              onBlur={e => {
+                e.currentTarget.style.borderColor = 'rgba(157, 123, 255, 0.16)';
+                e.currentTarget.style.boxShadow = 'none';
               }}
             >
               {PLATFORMS.map(p => (
-                <option key={p.value} value={p.value}>{p.label}</option>
+                <option key={p.value} value={p.value} style={{ background: '#101118', color: '#ffffff' }}>{p.label}</option>
               ))}
             </select>
           </div>
 
           {/* Build Log */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
               <label htmlFor="build-log" style={{ ...labelStyle, marginBottom: 0 }}>
                 Build Log
-                <span style={{ color: '#555a68', fontWeight: 400, marginLeft: '6px' }}>— paste output or upload file</span>
+                <span style={{ color: '#a4a7bd', fontWeight: 400, marginLeft: '6px' }}>— paste output or upload file</span>
               </label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 {buildLog && (
-                  <span style={{ fontSize: '11px', color: '#555a68' }}>
+                  <span style={{ fontSize: '11px', color: '#a4a7bd', fontFamily: 'ui-monospace, Consolas, monospace' }}>
                     {buildLog.length.toLocaleString()} / {LIMITS.BUILD_LOG_MAX_CHARS.toLocaleString()} chars
                   </span>
                 )}
@@ -338,19 +376,31 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
                   onClick={() => fileInputRef.current?.click()}
                   style={{
                     fontSize: '12px',
-                    color: '#f59e0b',
-                    background: 'rgba(245,158,11,0.08)',
-                    border: '1px solid rgba(245,158,11,0.2)',
-                    borderRadius: '4px',
-                    padding: '8px 12px',
+                    fontWeight: 500,
+                    color: '#9d7bff',
+                    background: 'rgba(157, 123, 255, 0.1)',
+                    border: '1px solid #433878',
+                    borderRadius: '8px',
+                    padding: '8px 14px',
                     minHeight: '36px',
                     display: 'inline-flex',
                     alignItems: 'center',
+                    gap: '6px',
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'rgba(157, 123, 255, 0.2)';
+                    e.currentTarget.style.borderColor = '#9d7bff';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'rgba(157, 123, 255, 0.1)';
+                    e.currentTarget.style.borderColor = '#433878';
                   }}
                 >
-                  Upload .txt / .log
+                  <Upload size={14} />
+                  <span>Upload log</span>
                 </button>
                 <input
                   id="log-file-input"
@@ -367,9 +417,9 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
               id="build-log"
               value={buildLog}
               onChange={e => setBuildLog(e.target.value)}
-              placeholder="Paste your build or deployment log here..."
-              rows={10}
+              placeholder="Paste build output or error log..."
               maxLength={LIMITS.BUILD_LOG_MAX_CHARS}
+              rows={8}
               spellCheck={false}
               aria-describedby="build-log-desc build-log-error"
               aria-invalid={!!validationErrors.buildLog}
@@ -380,22 +430,28 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
                 fontSize: '13px',
                 lineHeight: 1.5,
                 minHeight: '180px',
-                borderColor: validationErrors.buildLog ? '#f87171' : '#2a2d35',
+                borderColor: validationErrors.buildLog ? '#ff6b81' : 'rgba(157, 123, 255, 0.16)',
               }}
-              onFocus={e => { e.currentTarget.style.borderColor = '#f59e0b'; }}
-              onBlur={e => { e.currentTarget.style.borderColor = validationErrors.buildLog ? '#f87171' : '#2a2d35'; }}
+              onFocus={e => {
+                e.currentTarget.style.borderColor = '#9d7bff';
+                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(157, 123, 255, 0.2)';
+              }}
+              onBlur={e => {
+                e.currentTarget.style.borderColor = validationErrors.buildLog ? '#ff6b81' : 'rgba(157, 123, 255, 0.16)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             />
             {uploadError && (
-              <p role="alert" style={{ fontSize: '12px', color: '#f87171', margin: '4px 0 0 0' }}>
+              <p role="alert" style={{ fontSize: '12px', color: '#ff6b81', margin: '4px 0 0 0' }}>
                 {uploadError}
               </p>
             )}
             {validationErrors.buildLog && (
-              <p id="build-log-error" role="alert" style={{ fontSize: '12px', color: '#f87171', margin: '4px 0 0 0' }}>
+              <p id="build-log-error" role="alert" style={{ fontSize: '12px', color: '#ff6b81', margin: '4px 0 0 0' }}>
                 {validationErrors.buildLog}
               </p>
             )}
-            <p id="build-log-desc" style={{ fontSize: '12px', color: '#555a68', margin: '4px 0 0 0' }}>
+            <p id="build-log-desc" style={{ fontSize: '12px', color: '#6b6e82', margin: '6px 0 0 0' }}>
               Remove sensitive credentials before submitting. Automatic redaction reduces risk but is not guaranteed.
             </p>
           </div>
@@ -404,7 +460,7 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
           <div>
             <label htmlFor="project-context" style={labelStyle}>
               Project Context
-              <span style={{ color: '#555a68', fontWeight: 400, marginLeft: '6px' }}>— optional additional context</span>
+              <span style={{ color: '#a4a7bd', fontWeight: 400, marginLeft: '6px' }}>— optional additional context</span>
             </label>
             <textarea
               id="project-context"
@@ -418,80 +474,109 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
                 resize: 'vertical',
                 minHeight: '80px',
               }}
-              onFocus={e => { e.currentTarget.style.borderColor = '#f59e0b'; }}
-              onBlur={e => { e.currentTarget.style.borderColor = '#2a2d35'; }}
+              onFocus={e => {
+                e.currentTarget.style.borderColor = '#9d7bff';
+                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(157, 123, 255, 0.2)';
+              }}
+              onBlur={e => {
+                e.currentTarget.style.borderColor = 'rgba(157, 123, 255, 0.16)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             />
+          </div>
+
+          {/* Integrated Workbench Toolbar & Actions (Unslopped) */}
+          <div style={{
+            borderTop: '1px solid rgba(157, 123, 255, 0.14)',
+            paddingTop: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '16px',
+            flexWrap: 'wrap',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#a4a7bd', fontSize: '12px' }}>
+              <Info size={15} style={{ color: '#9d7bff', flexShrink: 0 }} />
+              <span>Static analysis only. No code is executed.</span>
+            </div>
+
+            <motion.button
+              type="submit"
+              disabled={isSubmitting}
+              aria-busy={isSubmitting}
+              whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+              whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+              style={{
+                padding: '12px 28px',
+                background: isSubmitting ? '#584496' : '#9d7bff',
+                color: '#0d091a',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: 700,
+                cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                letterSpacing: '-0.01em',
+                boxShadow: '0 4px 16px rgba(157, 123, 255, 0.3)',
+                transition: 'background 150ms, box-shadow 150ms',
+                opacity: isSubmitting ? 0.7 : 1,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                marginLeft: 'auto',
+              }}
+            >
+              <Play size={15} fill="currentColor" />
+              <span>{isSubmitting ? 'Analyzing...' : 'Diagnose'}</span>
+            </motion.button>
           </div>
         </div>
 
-        {/* Examples */}
-        <div style={{ margin: '20px 0' }}>
-          <p style={{ fontSize: '13px', color: '#8b909e', marginBottom: '8px' }}>Quick examples:</p>
+        {/* Preset Failure Modes (Docked directly under card) */}
+        <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <p style={{ fontSize: '12px', fontWeight: 600, color: '#a4a7bd', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
+            Examples:
+          </p>
           <div style={{
             display: 'flex',
             flexWrap: 'wrap',
             gap: '8px',
           }}>
             {EXAMPLES.map((ex, i) => (
-              <button
+              <motion.button
                 key={i}
                 type="button"
+                whileHover={{ scale: 1.04, y: -1 }}
+                whileTap={{ scale: 0.96 }}
                 onClick={() => loadExample(ex)}
                 style={{
                   fontSize: '12px',
-                  color: '#22d3ee',
-                  background: 'rgba(34,211,238,0.06)',
-                  border: '1px solid rgba(34,211,238,0.2)',
-                  borderRadius: '4px',
-                  padding: '5px 10px',
+                  fontWeight: 500,
+                  color: '#9d7bff',
+                  background: 'rgba(157, 123, 255, 0.08)',
+                  border: '1px solid #433878',
+                  borderRadius: '9999px',
+                  padding: '5px 13px',
                   cursor: 'pointer',
                   whiteSpace: 'nowrap',
+                  transition: 'background 0.15s ease, border-color 0.15s ease, color 0.15s ease',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(157, 123, 255, 0.2)';
+                  e.currentTarget.style.borderColor = '#9d7bff';
+                  e.currentTarget.style.color = '#ffffff';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'rgba(157, 123, 255, 0.08)';
+                  e.currentTarget.style.borderColor = '#433878';
+                  e.currentTarget.style.color = '#9d7bff';
                 }}
               >
                 {ex.label}
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>
-
-        {/* Privacy note */}
-        <div style={{
-          background: 'rgba(245,158,11,0.04)',
-          border: '1px solid rgba(245,158,11,0.15)',
-          borderRadius: '6px',
-          padding: '12px 16px',
-          marginBottom: '20px',
-          fontSize: '12px',
-          color: '#8b909e',
-        }}>
-          <strong style={{ color: '#f59e0b' }}>Privacy & Safety:</strong>{' '}
-          BuildDoctor fetches selected text files from public repositories. Logs are processed server-side and may be sent to Gemini (redacted). No code is executed. Patches are advisory only. Do not submit private credentials or sensitive source code.
-        </div>
-
-        {/* Submit */}
-        <motion.button
-          type="submit"
-          disabled={isSubmitting}
-          aria-busy={isSubmitting}
-          whileHover={{ scale: isSubmitting ? 1 : 1.01 }}
-          whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-          style={{
-            width: '100%',
-            padding: '14px 24px',
-            background: isSubmitting ? '#92400e' : '#f59e0b',
-            color: '#0f0f11',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '15px',
-            fontWeight: 700,
-            cursor: isSubmitting ? 'not-allowed' : 'pointer',
-            letterSpacing: '-0.01em',
-            transition: 'background 150ms',
-            opacity: isSubmitting ? 0.7 : 1,
-          }}
-        >
-          {isSubmitting ? 'Analyzing...' : '⚡ Analyze Failure'}
-        </motion.button>
       </form>
     </motion.div>
   );
