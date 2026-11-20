@@ -215,9 +215,16 @@ export async function fetchRepository(
 
   // 1. Fetch repository metadata
   const metaUrl = `${GITHUB_API_BASE}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`;
-  const metaResp = await fetch(metaUrl, { headers, signal });
+  let metaResp = await fetch(metaUrl, { headers, signal });
 
-  const rateLimit = parseRateLimit(metaResp, authenticated);
+  // If a token was provided but failed with 401 Unauthorized or 403 Forbidden (e.g. expired or revoked token),
+  // automatically fall back to public unauthenticated request so the app never breaks for public repos.
+  if ((metaResp.status === 401 || (metaResp.status === 403 && authenticated)) && headers['Authorization']) {
+    delete headers['Authorization'];
+    metaResp = await fetch(metaUrl, { headers, signal });
+  }
+
+  const rateLimit = parseRateLimit(metaResp, authenticated && !!headers['Authorization']);
 
   if (metaResp.status === 404) {
     throw Object.assign(new Error('Repository not found or is private'), { code: 'REPOSITORY_NOT_FOUND' });
