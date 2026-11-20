@@ -56,10 +56,11 @@ export default function HomePage() {
     startTimer();
 
     abortRef.current = new AbortController();
+    let stageInterval: ReturnType<typeof setInterval> | null = null;
 
     try {
       // Simulate stage progression
-      const stageInterval = setInterval(() => {
+      stageInterval = setInterval(() => {
         setLoadingStage(prev => {
           if (prev < LOADING_STAGES.length - 1) return prev + 1;
           return prev;
@@ -78,8 +79,6 @@ export default function HomePage() {
         body: JSON.stringify(input),
         signal: abortRef.current.signal,
       });
-
-      clearInterval(stageInterval);
 
       const data = await response.json() as DiagnoseResponse | { error: ApiError; githubRateLimit?: DiagnoseResponse['githubRateLimit'] };
 
@@ -101,6 +100,9 @@ export default function HomePage() {
       setError((err as Error).message ?? 'Network error. Please try again.');
       setPhase('error');
     } finally {
+      if (stageInterval) {
+        clearInterval(stageInterval);
+      }
       stopTimer();
     }
   }, [phase, startTimer, stopTimer]);

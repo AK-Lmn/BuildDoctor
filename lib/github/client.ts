@@ -286,10 +286,11 @@ export async function fetchRepository(
       batch.map(async (item) => {
         filesAttempted++;
         const contentUrl = `${GITHUB_API_BASE}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${item.path}?ref=${encodeURIComponent(resolvedRef)}`;
+        const timeoutSignal = AbortSignal.timeout(LIMITS.GITHUB_FETCH_TIMEOUT_MS);
+        const fileSignal = signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal;
         const resp = await fetch(contentUrl, {
           headers,
-          signal,
-          // Abort per-file timeout
+          signal: fileSignal,
         });
 
         if (!resp.ok) return null;

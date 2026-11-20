@@ -59,6 +59,15 @@ describe('redactSecrets', () => {
     const { redacted } = redactSecrets('Authorization: Bearer eyJsometoken12345678901234567890');
     expect(redacted).toContain('[REDACTED');
   });
+
+  it('handles long strings without catastrophic backtracking (ReDoS safety)', () => {
+    const longString = 'Bearer ' + 'a'.repeat(3000) + '!';
+    const start = Date.now();
+    const { redacted } = redactSecrets(longString);
+    const elapsed = Date.now() - start;
+    expect(elapsed).toBeLessThan(100);
+    expect(redacted).toBeDefined();
+  });
 });
 
 describe('redactFileContent', () => {

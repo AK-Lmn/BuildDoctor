@@ -26,12 +26,12 @@ const REDACTION_PATTERNS: Array<{ pattern: RegExp; placeholder: string }> = [
   },
   // Bearer tokens in headers
   {
-    pattern: /Bearer\s+[a-zA-Z0-9\-._~+/]{20,}={0,2}/gi,
+    pattern: /Bearer\s+[a-zA-Z0-9\-._~+/]{20,500}={0,2}/gi,
     placeholder: 'Bearer [REDACTED_TOKEN]',
   },
   // Authorization headers
   {
-    pattern: /(?:Authorization|x-api-key|x-auth-token|x-access-token)\s*[:=]\s*["']?[a-zA-Z0-9\-._~+/]{10,}["']?/gi,
+    pattern: /(?:Authorization|x-api-key|x-auth-token|x-access-token)\s*[:=]\s*["']?[a-zA-Z0-9\-._~+/]{10,500}["']?/gi,
     placeholder: '[REDACTED_AUTH_HEADER]',
   },
   // AWS-style keys
@@ -46,12 +46,12 @@ const REDACTION_PATTERNS: Array<{ pattern: RegExp; placeholder: string }> = [
   },
   // Sensitive query params — token, key, secret, password, auth, session, code, signature, api_key
   {
-    pattern: /([?&](?:token|api[_-]?key|password|secret|auth|session|code|signature|private[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret)=)[^\s&"'#]{4,}/gi,
+    pattern: /([?&](?:token|api[_-]?key|password|secret|auth|session|code|signature|private[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret)=)[^\s&"'#]{4,500}/gi,
     placeholder: '$1[REDACTED]',
   },
   // Environment variable assignments with secrets
   {
-    pattern: /(?:^|[\s;,])(?:API[_-]?KEY|SECRET[_-]?KEY|ACCESS[_-]?TOKEN|REFRESH[_-]?TOKEN|CLIENT[_-]?SECRET|PRIVATE[_-]?KEY|PASSWORD|PASSWD|AUTH[_-]?TOKEN|SERVICE[_-]?ACCOUNT[_-]?KEY)\s*=\s*["']?[a-zA-Z0-9\-._~+/]{8,}["']?/gim,
+    pattern: /(?:^|[\s;,])(?:API[_-]?KEY|SECRET[_-]?KEY|ACCESS[_-]?TOKEN|REFRESH[_-]?TOKEN|CLIENT[_-]?SECRET|PRIVATE[_-]?KEY|PASSWORD|PASSWD|AUTH[_-]?TOKEN|SERVICE[_-]?ACCOUNT[_-]?KEY)\s*=\s*["']?[a-zA-Z0-9\-._~+/]{8,500}["']?/gim,
     placeholder: ' [REDACTED_SECRET_ENV]',
   },
   // Signed URLs (S3, GCS, Azure with signatures)
@@ -66,12 +66,12 @@ const REDACTION_PATTERNS: Array<{ pattern: RegExp; placeholder: string }> = [
   },
   // Long hex strings that look like secrets (40+ hex chars)
   {
-    pattern: /\b[a-f0-9]{40,}\b/g,
+    pattern: /\b[a-f0-9]{40,128}\b/g,
     placeholder: '[REDACTED_HEX_TOKEN]',
   },
   // Long random base64-like strings (32+ chars) — more conservative
   {
-    pattern: /\b[a-zA-Z0-9+/]{32,}={0,2}\b/g,
+    pattern: /\b[a-zA-Z0-9+/]{32,500}={0,2}\b/g,
     placeholder: '[REDACTED_TOKEN]',
   },
 ];
