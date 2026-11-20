@@ -262,9 +262,14 @@ export async function fetchRepository(
   }
 
   const treeData = await treeResp.json() as { tree: GitHubTreeItem[]; truncated: boolean };
+  const rawTree = Array.isArray(treeData.tree) ? treeData.tree : [];
 
-  // 3. Filter to allowlisted files
-  const candidates = treeData.tree.filter(item => shouldFetchFile(item, referencedFiles));
+  // 3. Filter to allowlisted files, bounded to MAX_TREE_ITEMS to guard heap memory
+  const boundedTree = rawTree.length > LIMITS.MAX_TREE_ITEMS
+    ? rawTree.slice(0, LIMITS.MAX_TREE_ITEMS)
+    : rawTree;
+
+  const candidates = boundedTree.filter(item => shouldFetchFile(item, referencedFiles));
 
   // 4. Fetch files concurrently with limit
   const files: GitHubFile[] = [];

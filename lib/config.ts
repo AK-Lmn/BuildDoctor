@@ -15,6 +15,7 @@ export const LIMITS = {
   FETCHED_CONTENT_MAX_CHARS: 600_000,
   FETCHED_FILES_MAX: 50,
   INDIVIDUAL_FILE_MAX_BYTES: 150 * 1024, // 150 KB
+  MAX_TREE_ITEMS: 15_000, // Safe bound against memory exhaustion on massive repos
 
   // Diagnosis limits
   FINDINGS_MAX: 12,
