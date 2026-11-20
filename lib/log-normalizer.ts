@@ -130,7 +130,12 @@ export function normalizeBuildLog(rawLog: string): NormalizedLog {
   let omittedLineCount: number | undefined;
   let finalLines = collapsedLines;
 
-  if (collapsedLines.join('\n').length > LIMITS.BUILD_LOG_MAX_CHARS) {
+  let totalCollapsedChars = 0;
+  for (let i = 0; i < collapsedLines.length; i++) {
+    totalCollapsedChars += collapsedLines[i].length + (i > 0 ? 1 : 0);
+  }
+
+  if (totalCollapsedChars > LIMITS.BUILD_LOG_MAX_CHARS) {
     wasTruncated = true;
     // Preserve first 40% and last 40% by char count
     const targetChars = LIMITS.BUILD_LOG_MAX_CHARS;

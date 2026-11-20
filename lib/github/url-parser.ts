@@ -76,11 +76,6 @@ export function parseGitHubUrl(rawUrl: string): ParsedGitHubUrl {
     throw new Error('Repository URL points to a private or local destination');
   }
 
-  // Enforce host is exactly github.com
-  if (parsed.hostname !== 'github.com') {
-    throw new Error('Only github.com repositories are supported');
-  }
-
   // Parse path segments
   const pathParts = parsed.pathname.replace(/^\//, '').split('/').filter(Boolean);
 

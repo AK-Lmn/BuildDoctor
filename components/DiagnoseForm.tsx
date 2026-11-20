@@ -56,11 +56,11 @@ const EXAMPLES = [
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
-  background: '#16181c',
-  border: '1px solid #2a2d35',
+  background: 'var(--bd-bg-surface, #16181c)',
+  border: '1px solid var(--bd-border, #2a2d35)',
   borderRadius: '6px',
   padding: '10px 12px',
-  color: '#e8eaf0',
+  color: 'var(--bd-text-primary, #e8eaf0)',
   fontSize: '14px',
   fontFamily: 'inherit',
   outline: 'none',
@@ -72,7 +72,7 @@ const labelStyle: React.CSSProperties = {
   display: 'block',
   fontSize: '13px',
   fontWeight: 500,
-  color: '#8b909e',
+  color: 'var(--bd-text-secondary, #8b909e)',
   marginBottom: '6px',
 };
 

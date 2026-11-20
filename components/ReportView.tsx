@@ -46,8 +46,8 @@ function Badge({ label, color }: { label: string; color: string }) {
 function Card({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
     <div style={{
-      background: '#16181c',
-      border: '1px solid #2a2d35',
+      background: 'var(--bd-bg-surface, #16181c)',
+      border: '1px solid var(--bd-border, #2a2d35)',
       borderRadius: '8px',
       padding: '20px',
       ...style,
