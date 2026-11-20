@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./assets/banner-builddoctor.svg" alt="BuildDoctor Banner" width="100%" />
+<img src="./assets/logo.svg" alt="BuildDoctor Logo" width="120" height="120" />
 
 # BuildDoctor
 
