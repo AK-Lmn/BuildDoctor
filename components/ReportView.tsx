@@ -250,7 +250,7 @@ export default function ReportView({ input, result, onNewDiagnosis, onAnalyzeAga
       )}
 
       {/* Filters */}
-      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '16px' }}>
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
         {filterButtons.map(fb => (
           <button
             key={fb.value}
@@ -258,8 +258,12 @@ export default function ReportView({ input, result, onNewDiagnosis, onAnalyzeAga
             aria-pressed={filter === fb.value}
             style={{
               fontSize: '12px',
-              padding: '5px 10px',
-              borderRadius: '4px',
+              padding: '8px 12px',
+              minHeight: '36px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '6px',
               border: `1px solid ${filter === fb.value ? '#f59e0b' : '#2a2d35'}`,
               background: filter === fb.value ? 'rgba(245,158,11,0.12)' : 'transparent',
               color: filter === fb.value ? '#f59e0b' : '#8b909e',

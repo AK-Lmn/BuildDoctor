@@ -8,7 +8,7 @@
   --bd-border-subtle: #1e2028;
   --bd-text-primary: #e8eaf0;
   --bd-text-secondary: #8b909e;
-  --bd-text-muted: #555a68;
+  --bd-text-muted: #8c92a4;
   --bd-amber: #f59e0b;
   --bd-amber-dim: #92400e;
   --bd-amber-subtle: #1c1408;
@@ -87,6 +87,13 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-fade-in,
+  .animate-slide-in {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
   }
 }
 
@@ -132,4 +139,18 @@ code, pre {
 
 .animate-slide-in {
   animation: slide-in 0.2s ease-out;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-fast {
+  animation: spin 1s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin-fast {
+    animation: none !important;
+  }
 }

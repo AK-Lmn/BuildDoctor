@@ -38,15 +38,17 @@ export default function LoadingState({
     >
       {/* Animated mark */}
       <div style={{ marginBottom: '32px' }}>
-        <div style={{
-          width: '48px',
-          height: '48px',
-          margin: '0 auto 16px',
-          borderRadius: '50%',
-          border: '2px solid #f59e0b',
-          borderTopColor: 'transparent',
-          animation: 'spin 1s linear infinite',
-        }} />
+        <div
+          className="animate-spin-fast"
+          style={{
+            width: '48px',
+            height: '48px',
+            margin: '0 auto 16px',
+            borderRadius: '50%',
+            border: '2px solid #f59e0b',
+            borderTopColor: 'transparent',
+          }}
+        />
         <h2 style={{
           fontSize: '20px',
           fontWeight: 700,

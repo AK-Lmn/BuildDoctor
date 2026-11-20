@@ -324,6 +324,7 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
                 )}
                 <button
                   type="button"
+                  aria-controls="log-file-input"
                   onClick={() => fileInputRef.current?.click()}
                   style={{
                     fontSize: '12px',
@@ -331,7 +332,10 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
                     background: 'rgba(245,158,11,0.08)',
                     border: '1px solid rgba(245,158,11,0.2)',
                     borderRadius: '4px',
-                    padding: '4px 10px',
+                    padding: '8px 12px',
+                    minHeight: '36px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
                   }}
@@ -339,6 +343,7 @@ export default function DiagnoseForm({ onSubmit, onRetry, initialError, isSubmit
                   Upload .txt / .log
                 </button>
                 <input
+                  id="log-file-input"
                   ref={fileInputRef}
                   type="file"
                   accept=".txt,.log"
