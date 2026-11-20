@@ -10,6 +10,7 @@ import {
   Copy,
   Check,
   Download,
+  RotateCcw,
   Terminal,
   FileText,
   ChevronDown,
@@ -709,10 +710,14 @@ export default function ReportView({ input, result, onNewDiagnosis, onAnalyzeAga
             fontWeight: 600,
             cursor: 'pointer',
             whiteSpace: 'nowrap',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
             transition: 'background 150ms, color 150ms',
           }}
         >
-          {copied ? '✓ Copied!' : '📋 Copy Markdown'}
+          {copied ? <Check size={14} /> : <Copy size={14} />}
+          <span>{copied ? 'Copied' : 'Copy Markdown'}</span>
         </motion.button>
         <motion.button
           whileHover={{ scale: 1.02 }}
@@ -728,9 +733,13 @@ export default function ReportView({ input, result, onNewDiagnosis, onAnalyzeAga
             fontWeight: 600,
             cursor: 'pointer',
             whiteSpace: 'nowrap',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
           }}
         >
-          ↓ Download JSON
+          <Download size={14} />
+          <span>Download JSON</span>
         </motion.button>
         <motion.button
           whileHover={{ scale: 1.02 }}
@@ -746,9 +755,13 @@ export default function ReportView({ input, result, onNewDiagnosis, onAnalyzeAga
             fontWeight: 500,
             cursor: 'pointer',
             whiteSpace: 'nowrap',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
           }}
         >
-          ↺ Analyze Again
+          <RotateCcw size={14} />
+          <span>Analyze Again</span>
         </motion.button>
         <motion.button
           whileHover={{ scale: 1.02 }}
@@ -764,9 +777,12 @@ export default function ReportView({ input, result, onNewDiagnosis, onAnalyzeAga
             fontWeight: 500,
             cursor: 'pointer',
             whiteSpace: 'nowrap',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
           }}
         >
-          + New Diagnosis
+          <span>+ New Diagnosis</span>
         </motion.button>
       </div>
     </motion.div>
